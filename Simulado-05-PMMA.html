@@ -1,0 +1,2195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1b2e">
+<title>Simulado 05 PMMA</title>
+<style>
+
+:root{
+  --bg:#0d1b2e; --bg-2:#122540; --panel:#16304f; --line:#2a4a70;
+  --gold:#c9a24a; --gold-dim:#8a7433; --gold-soft:rgba(201,162,74,.12);
+  --certo:#4f9d69; --errado:#b5533f; --blank:#6b7c93;
+  --ink:#eef2f6; --ink-dim:#a9bcd4;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0; height:auto; min-height:100%; overflow-x:hidden; overflow-y:auto; -webkit-overflow-scrolling:touch}
+html{scroll-behavior:smooth}
+body{
+  background:radial-gradient(1200px 800px at 80% -10%,#17335a 0%,var(--bg) 55%);
+  color:var(--ink); font-family:var(--sans); min-height:100vh;
+  padding-bottom:calc(120px + var(--safe-b)); font-size:16px; line-height:1.55;
+  position:static !important; /* never lock the page */
+  touch-action:pan-y;
+}
+header{
+  text-align:center; padding:28px 16px 18px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(201,162,74,.08),transparent);
+  position:sticky; top:0; z-index:20; backdrop-filter:blur(8px);
+  background-color:rgba(13,27,46,.92);
+}
+.badge{
+  width:56px;height:56px;margin:0 auto 10px; border-radius:50%;
+  border:2px solid var(--gold); display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif); font-weight:bold; font-size:20px; color:var(--gold);
+  letter-spacing:1px;
+  box-shadow:0 0 0 4px var(--gold-soft),0 0 20px rgba(201,162,74,.15);
+}
+h1{font-family:var(--serif); font-size:clamp(20px,4.2vw,30px); margin:0 0 4px; letter-spacing:.4px}
+.subtitle{color:var(--ink-dim); font-size:12px; letter-spacing:1.4px; text-transform:uppercase}
+.lawref{margin-top:8px; font-size:13px; color:var(--gold); font-style:italic}
+.hdr-meta{display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-top:10px}
+.chip{
+  font-size:12px; padding:4px 10px; border-radius:999px;
+  border:1px solid var(--line); background:var(--panel); color:var(--ink-dim);
+  cursor:pointer; font-weight:600;
+}
+.chip.gold{border-color:var(--gold); color:var(--gold)}
+.chip:empty{display:none}
+.fs-btn{
+  position:fixed; top:10px; right:10px; z-index:10050;
+  width:40px; height:40px; border-radius:10px;
+  border:1px solid var(--line); background:var(--panel); color:var(--ink);
+  cursor:pointer; font-size:18px; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);
+}
+.fs-btn:hover{border-color:var(--gold); color:var(--gold)}
+.fs-btn:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+/* Expanded / fullscreen look — must NOT use position:fixed (it froze scrolling) */
+body.is-immersive{
+  position:static !important;
+  width:auto; height:auto; min-height:100vh;
+  overflow-x:hidden; overflow-y:auto !important;
+  max-height:none !important;
+}
+body.is-immersive main{max-width:min(1100px,96vw); padding:22px 28px 0}
+body.is-immersive .qtext{font-size:18.5px; line-height:1.7}
+body.is-immersive .card{padding:28px 24px 22px}
+body.is-immersive .opt-btn{min-height:64px; font-size:17px}
+body.is-immersive header{padding-right:56px}
+:fullscreen, :-webkit-full-screen{overflow-y:auto !important; height:auto !important; min-height:100%}
+:fullscreen body, :-webkit-full-screen body{overflow-y:auto !important; position:static !important; height:auto !important; min-height:100vh}
+
+main{max-width:780px; margin:0 auto; padding:18px 14px 0}
+#quizBody{padding-bottom:8px}
+#quizBody .card:last-child{margin-bottom:12px}
+@media (min-width:900px){
+  main{max-width:900px}
+}
+:fullscreen main, :-webkit-full-screen main{max-width:min(1100px,96vw); padding:22px 28px 0}
+:fullscreen .qtext, :-webkit-full-screen .qtext{font-size:18.5px; line-height:1.7}
+:fullscreen .card, :-webkit-full-screen .card{padding:28px 24px 22px}
+:fullscreen .opt-btn, :-webkit-full-screen .opt-btn{min-height:64px; font-size:17px}
+:fullscreen header, :-webkit-full-screen header{padding-right:56px}
+
+.progress-wrap{display:flex; align-items:center; gap:12px; margin-bottom:14px}
+.progress-track{
+  flex:1; height:8px; background:var(--bg-2); border-radius:4px;
+  overflow:hidden; border:1px solid var(--line);
+}
+.progress-fill{
+  height:100%; width:0%;
+  background:linear-gradient(90deg,var(--gold-dim),var(--gold));
+  transition:width .35s ease;
+}
+.progress-label{font-size:13px; color:var(--ink-dim); white-space:nowrap; font-variant-numeric:tabular-nums}
+
+.scoreboard{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px}
+.score-box{
+  background:var(--panel); border:1px solid var(--line); border-radius:8px;
+  padding:10px 8px; text-align:center;
+}
+.score-box .num{font-family:var(--serif); font-size:22px; font-weight:bold}
+.score-box .lbl{font-size:10px; letter-spacing:1px; text-transform:uppercase; color:var(--ink-dim); margin-top:2px}
+#numCertas{color:var(--certo)} #numErradas{color:var(--errado)} #numPendentes{color:var(--gold)}
+
+.card{
+  background:var(--panel); border:1px solid var(--line); border-radius:12px;
+  padding:22px 18px 18px; margin-bottom:14px;
+  box-shadow:0 8px 30px rgba(0,0,0,.25);
+}
+.qnum{
+  font-family:var(--serif); color:var(--gold); font-size:12px;
+  letter-spacing:1.2px; text-transform:uppercase; margin-bottom:8px;
+}
+.comando{font-size:13.5px; color:var(--ink-dim); margin-bottom:10px; font-style:italic}
+.qtext{font-size:17px; line-height:1.68; margin-bottom:18px}
+.warn{
+  display:inline-block; font-size:12px; background:rgba(201,162,74,.15);
+  color:var(--gold); border-radius:6px; padding:2px 8px; margin-bottom:10px; font-weight:700;
+}
+.ctx{
+  background:var(--bg-2); border-left:3px solid var(--gold); border-radius:8px;
+  padding:12px 14px; margin-bottom:16px; font-size:14.5px; color:var(--ink-dim);
+  line-height:1.55;
+}
+.ctx summary{cursor:pointer; font-weight:700; color:var(--gold); margin-bottom:6px; user-select:none}
+.ctx p{margin:8px 0}
+.ctx .fonte{font-size:12px; text-align:right; opacity:.85}
+.ctx .cmd{font-weight:700; color:var(--ink); font-style:normal}
+.ctx .prop{font-style:italic; color:var(--ink)}
+
+.options{display:flex; gap:10px; margin-bottom:8px}
+.opt-btn{
+  flex:1; padding:16px 10px; min-height:56px; font-size:16px; font-weight:700;
+  letter-spacing:.6px; border-radius:10px; border:1px solid var(--line);
+  background:var(--bg-2); color:var(--ink); cursor:pointer;
+  transition:all .15s ease; font-family:var(--sans);
+}
+.opt-btn:hover:not(:disabled){border-color:var(--gold); background:#1c3454}
+.opt-btn:disabled{cursor:default}
+.opt-btn.correct{background:rgba(79,157,105,.18); border-color:var(--certo); color:#b8e4c4}
+.opt-btn.incorrect{background:rgba(181,83,63,.18); border-color:var(--errado); color:#f0bdb0}
+.opt-btn.sel-blank{background:rgba(107,124,147,.2); border-color:var(--blank); color:#c5d0de}
+.blank-btn{
+  width:100%; margin-top:4px; padding:12px; border-radius:10px;
+  border:1px dashed var(--line); background:transparent; color:var(--ink-dim);
+  font-weight:700; font-size:14px; cursor:pointer;
+}
+.blank-btn:hover:not(:disabled){border-color:var(--gold); color:var(--gold)}
+.blank-btn:disabled{cursor:default; opacity:.55}
+.blank-btn.sel{border-style:solid; border-color:var(--blank); color:#c5d0de; background:rgba(107,124,147,.15)}
+
+.feedback{
+  margin-top:16px; margin-bottom:8px; padding:14px 16px; border-radius:8px;
+  font-size:14.5px; line-height:1.55; display:none;
+}
+.feedback.show{display:block; animation:pop .22s ease}
+@keyframes pop{from{transform:scale(.97);opacity:0}to{transform:none;opacity:1}}
+.feedback.ok{background:rgba(79,157,105,.1); border-left:3px solid var(--certo)}
+.feedback.no{background:rgba(181,83,63,.1); border-left:3px solid var(--errado)}
+.feedback.blank{background:rgba(107,124,147,.12); border-left:3px solid var(--blank)}
+.feedback .tag{display:block; font-weight:800; letter-spacing:.4px; margin-bottom:6px; font-size:13px; text-transform:uppercase}
+.feedback.ok .tag{color:var(--certo)} .feedback.no .tag{color:var(--errado)} .feedback.blank .tag{color:var(--blank)}
+.feedback .gab{display:inline-block; background:var(--bg); border:1px solid var(--line); border-radius:5px; padding:1px 7px; font-weight:800; margin-right:6px; font-size:12px}
+.feedback .art{color:var(--gold); font-style:italic}
+
+.navb{
+  position:fixed; left:0; right:0; bottom:0; z-index:15;
+  background:rgba(13,27,46,.94); backdrop-filter:blur(8px);
+  border-top:1px solid var(--line);
+  padding:10px 14px calc(10px + var(--safe-b));
+}
+.navb .in{max-width:780px; margin:0 auto; display:flex; gap:10px}
+.navb button{
+  flex:1; border:0; border-radius:10px; padding:14px 10px;
+  font-size:15px; font-weight:800; cursor:pointer; font-family:var(--sans);
+}
+#btnPrev{background:var(--bg-2); color:var(--ink); border:1px solid var(--line); flex:0 0 36%}
+#btnNext{background:var(--gold); color:#2a1f05}
+#btnNext:hover{background:#dab663}
+.navb button:disabled{opacity:.4; cursor:default}
+
+.intro-card{text-align:center; padding:28px 18px}
+.intro-card .sec-label{font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gold); margin-bottom:6px}
+.intro-card h2{font-family:var(--serif); font-size:clamp(22px,5vw,28px); margin:6px 0 8px}
+.intro-card p{color:var(--ink-dim); margin:6px 0}
+.intro-card .start-btn{
+  display:block; width:100%; margin-top:18px; padding:16px;
+  border:0; border-radius:10px; background:var(--gold); color:#2a1f05;
+  font-weight:800; font-size:16px; cursor:pointer;
+}
+.howto{font-size:13.5px; color:var(--ink-dim); margin-top:12px}
+.howto b{color:var(--ink)}
+.demo-banner{
+  background:rgba(201,162,74,.12); border:1px dashed var(--gold); color:var(--gold);
+  border-radius:8px; padding:10px 12px; font-size:13px; margin-bottom:14px; text-align:center;
+}
+
+#finalScreen{display:none}
+#finalScreen .card{padding:28px 18px; text-align:center}
+#finalScreen h2{font-family:var(--serif); font-size:26px; margin:0 0 6px}
+#finalScreen .pct{font-family:var(--serif); font-size:52px; color:var(--gold); margin:10px 0 4px}
+#finalScreen .msg{color:var(--ink-dim); margin-bottom:16px; font-size:15px}
+.kpis{display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin:14px 0}
+.kpi{border-radius:10px; padding:12px; text-align:center; font-weight:700; color:#fff}
+.kpi b{display:block; font-family:var(--serif); font-size:1.8rem; line-height:1.1}
+.kpi.ok{background:var(--certo)} .kpi.bad{background:var(--errado)}
+.kpi.bl{background:var(--blank)} .kpi.nota{background:#5b4a9e}
+table.pt{width:100%; border-collapse:collapse; margin:12px 0; font-size:14px}
+table.pt th,table.pt td{padding:8px 4px; text-align:center; border-bottom:1px solid var(--line)}
+table.pt th{color:var(--ink-dim); font-size:11px; text-transform:uppercase; letter-spacing:.5px}
+.flag{margin:8px 0; padding:11px 12px; border-radius:10px; font-weight:700; color:#fff; text-align:left; font-size:14px}
+.flag.okf{background:var(--certo)} .flag.badf{background:var(--errado)}
+.action-btn{
+  display:block; width:100%; margin-top:10px; padding:14px;
+  border-radius:10px; font-weight:800; font-size:15px; cursor:pointer; font-family:var(--sans);
+}
+.action-btn.ghost{background:transparent; border:1px solid var(--gold); color:var(--gold)}
+.action-btn.solid{background:var(--gold); border:0; color:#2a1f05}
+.action-btn.danger{background:rgba(181,83,63,.2); border:1px solid var(--errado); color:#f0bdb0}
+
+#reviewList{text-align:left; margin-top:20px; border-top:1px solid var(--line); padding-top:16px}
+.review-item{padding:10px 0; border-bottom:1px solid rgba(255,255,255,.05); font-size:13.5px; display:flex; gap:10px}
+.review-item .dot{flex-shrink:0; width:8px; height:8px; border-radius:50%; margin-top:5px}
+.review-item.ok .dot{background:var(--certo)}
+.review-item.no .dot{background:var(--errado)}
+.review-item.bl .dot{background:var(--blank)}
+.review-item .rtext{color:var(--ink-dim)}
+.review-item .mark{font-weight:800; margin-right:4px}
+
+#welcome{
+  position:fixed; inset:0; background:rgba(8,14,24,.88); z-index:60;
+  display:none; align-items:center; justify-content:center; padding:16px;
+}
+#welcome .wc{
+  background:var(--panel); border:1px solid var(--line); border-radius:16px;
+  max-width:420px; width:100%; padding:22px; text-align:center;
+  box-shadow:0 16px 40px rgba(0,0,0,.45);
+}
+#welcome h3{margin:0 0 8px; font-family:var(--serif); color:var(--gold); font-size:1.35rem}
+#welcome p{color:var(--ink-dim); margin:0 0 14px}
+#welcome button{display:block; width:100%; margin:8px 0 0; padding:14px; border-radius:10px; border:0; font-size:15px; font-weight:800; cursor:pointer}
+#wGo{background:var(--gold); color:#2a1f05}
+#wReset{background:rgba(181,83,63,.2); color:#f0bdb0; border:1px solid var(--errado)!important}
+
+#menu{display:none; position:fixed; inset:0; z-index:40; background:rgba(8,14,24,.75)}
+#menu .pnl{
+  background:var(--panel); max-width:420px; margin:70px auto 0; border-radius:14px;
+  padding:10px; box-shadow:0 10px 30px rgba(0,0,0,.5); max-height:80vh; overflow:auto;
+  border:1px solid var(--line);
+}
+#menu button{
+  display:flex; justify-content:space-between; width:100%; border:0;
+  background:var(--bg-2); margin:6px 0; padding:13px 14px; border-radius:10px;
+  font-size:14px; font-weight:700; cursor:pointer; text-align:left; color:var(--ink);
+  border-left:6px solid var(--gold);
+}
+#menu small{font-weight:500; color:var(--ink-dim)}
+
+footer{text-align:center; color:var(--ink-dim); font-size:12px; margin:28px 0 12px; opacity:.75}
+.hidden{display:none!important}
+.kbd-hint{font-size:11px; color:var(--ink-dim); text-align:center; margin-top:8px; opacity:.7}
+
+/* Long texto-base: scrollable when expanded */
+.ctx details[open], details.ctx[open]{
+  /* details itself */
+}
+details.ctx[open]{
+  max-height:none;
+}
+details.ctx .ctx-scroll{
+  max-height:min(42vh, 360px);
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-right:4px;
+  margin-top:4px;
+}
+details.ctx summary{list-style:none}
+details.ctx summary::-webkit-details-marker{display:none}
+details.ctx summary::before{content:'▸ '; color:var(--gold)}
+details.ctx[open] summary::before{content:'▾ '}
+
+/* Always leave room for fixed FS button */
+header{padding-right:56px}
+
+@media (max-width:480px){
+  .card{padding:18px 14px 16px}
+  .qtext{font-size:17px; line-height:1.7}
+  .comando{font-size:14px}
+  .opt-btn{font-size:16px; padding:14px 8px; min-height:56px}
+  .blank-btn{padding:12px; font-size:14.5px}
+  header{padding:12px 52px 10px 12px}
+  .badge{width:40px;height:40px;font-size:16px;margin-bottom:6px}
+  h1{font-size:clamp(17px,5vw,22px)}
+  .subtitle{font-size:11px; letter-spacing:1.1px}
+  .lawref{font-size:12px; margin-top:4px}
+  .scoreboard{gap:6px; margin-bottom:12px}
+  .score-box{padding:8px 6px}
+  .score-box .num{font-size:18px}
+  .progress-wrap{margin-bottom:10px}
+  main{padding:12px 12px 0}
+  .navb .in{max-width:100%}
+  body{padding-bottom:calc(128px + var(--safe-b))}
+  .kbd-hint{margin-bottom:4px}
+}
+@media (min-width:481px) and (max-width:899px){
+  .qtext{font-size:17px; line-height:1.68}
+}
+@media (min-width:900px){
+  .navb .in{max-width:900px}
+  body.is-immersive .navb .in, :fullscreen .navb .in, :-webkit-full-screen .navb .in{max-width:min(1100px,96vw)}
+}
+
+</style>
+</head>
+<body>
+<button class="fs-btn" id="fsBtn" type="button" title="Tela cheia (F)" aria-label="Tela cheia">⛶</button>
+<header>
+  <div class="badge">PM</div>
+  <h1 id="docTitle">Simulado 05 PMMA</h1>
+  <div class="subtitle" id="docSubtitle"></div>
+  <div class="lawref" id="docLawref"></div>
+  <div class="hdr-meta">
+    <span class="chip" id="posChip"></span>
+    <span class="chip gold" id="marcoChip"></span>
+    <button class="chip" id="menuBtn" type="button">☰ Seções</button>
+  </div>
+</header>
+
+<main>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0 / 0</div>
+  </div>
+  <div class="scoreboard">
+    <div class="score-box"><div class="num" id="numCertas">0</div><div class="lbl">Certas</div></div>
+    <div class="score-box"><div class="num" id="numErradas">0</div><div class="lbl">Erradas</div></div>
+    <div class="score-box"><div class="num" id="numPendentes">0</div><div class="lbl">Restantes</div></div>
+  </div>
+  <div id="quizBody"></div>
+</main>
+
+<div class="navb hidden" id="navb">
+  <div class="in">
+    <button type="button" id="btnPrev">← Anterior</button>
+    <button type="button" id="btnNext">Próxima →</button>
+  </div>
+</div>
+
+<div id="welcome"><div class="wc">
+  <h3>Bem-vindo de volta!</h3>
+  <p id="wMsg"></p>
+  <button type="button" id="wGo"></button>
+  <button type="button" id="wReset">Recomeçar do zero</button>
+</div></div>
+
+<div id="menu"><div class="pnl" id="menuP"></div></div>
+
+<footer id="docFooter">Simulado 05 PMMA · CT da Aprovação · 120 itens · offline · Modelo Simulado PMMA</footer>
+
+<script>
+/* ============================================================================
+ * MODELO SIMULADO PMMA (Certo/Errado) — configuração
+ * ----------------------------------------------------------------------------
+ * Substitua QUESTIONS pelo array extraído do PDF.
+ * Ajuste TITLE / SUBTITLE / STORAGE_KEY / SECTIONS / SCORING conforme o simulado.
+ *
+ * Schema de cada item em QUESTIONS:
+ * {
+ *   id: 1,                          // número do item (1-based)
+ *   section: "Estatuto PMMA",       // matéria / seção
+ *   comando: "…",                   // opcional: enunciado-comando
+ *   texto: "…",                     // proposição a julgar
+ *   resposta: "C" | "E",
+ *   comentario: "… (art. X)",       // explicação curta
+ *   art: "Art. X",                  // opcional: citação em destaque
+ *   p: 1 | 2,                       // opcional: bloco P1/P2
+ *   discutivel: true,               // opcional: marca ⚠️
+ *   pre: [{cls:"txt"|"cmd"|"fonte"|"prop", t:"…"}],  // opcional: texto-base
+ *   separator: true                 // opcional: quebra herança de texto-base
+ * }
+ *
+ * SECTIONS: [{name, short?, a, b}]  — a/b = intervalo de itens (inclusivo)
+ * SCORING:
+ *   mode: "cebraspe" | "percent"
+ *   allowBlank: true/false
+ *   p1 / p2: {from, to, min} ou null
+ *   totalMin: número ou null
+ * REVERSE_ORDER: true  — começa no último item e desce até 1 (padrão)
+ * Tela cheia: botão ⛶ / tecla F · Fullscreen API + fallback is-immersive
+ *   (NUNCA position:fixed no body — trava o scroll)
+ * ============================================================================ */
+window.SIM_CONFIG = {
+  "TITLE": "Simulado 05 PMMA",
+  "SUBTITLE": "Certo & Errado · CT da Aprovação · 120 itens",
+  "LAWREF": "Estilo CEBRASPE · P1 (1–50) · P2 (51–120)",
+  "STORAGE_KEY": "simulado05pmma_v3",
+  "DEMO": false,
+  "REVERSE_ORDER": true,
+  "SECTIONS": [
+    {
+      "name": "Língua Portuguesa",
+      "short": "Português",
+      "a": 1,
+      "b": 22
+    },
+    {
+      "name": "Raciocínio Lógico",
+      "short": "Raciocínio Lógico",
+      "a": 23,
+      "b": 32
+    },
+    {
+      "name": "História do Brasil",
+      "short": "História do Brasil",
+      "a": 33,
+      "b": 37
+    },
+    {
+      "name": "História do Maranhão",
+      "short": "História do MA",
+      "a": 38,
+      "b": 41
+    },
+    {
+      "name": "Geografia (Brasil e Maranhão)",
+      "short": "Geografia",
+      "a": 42,
+      "b": 50
+    },
+    {
+      "name": "Informática",
+      "short": "Informática",
+      "a": 51,
+      "b": 80
+    },
+    {
+      "name": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+      "short": "Estatuto PMMA",
+      "a": 81,
+      "b": 105
+    },
+    {
+      "name": "LOB da PMMA — Lei nº 12.896/2026",
+      "short": "LOB PMMA",
+      "a": 106,
+      "b": 111
+    },
+    {
+      "name": "Lei Orgânica Nacional das PM/CBM — Lei nº 14.751/2023",
+      "short": "Lei 14.751/23",
+      "a": 112,
+      "b": 120
+    }
+  ],
+  "SCORING": {
+    "mode": "cebraspe",
+    "allowBlank": true,
+    "p1": {
+      "from": 1,
+      "to": 50,
+      "min": 10
+    },
+    "p2": {
+      "from": 51,
+      "to": 120,
+      "min": 21
+    },
+    "totalMin": 36
+  }
+};
+window.QUESTIONS = [
+  {
+    "id": 1,
+    "section": "Língua Portuguesa",
+    "texto": "No primeiro período do texto, a forma pronominal presente em “visualizá-la” retoma “a comunicação”.",
+    "resposta": "E",
+    "comentario": "o \"-la\" retoma \"a informação\", não \"a comunicação\".",
+    "pre": [
+      {
+        "cls": "txt",
+        "t": "Considerando a informação como um conceito que coexiste com a comunicação, conseguimos visualizá-la em dois sentidos. O primeiro, estritamente técnico ou tecnológico, diz respeito à informação como quantidade mensurável (dados); o segundo sentido é qualitativo e vinculado ao papel da informação como controle e redundância nos sistemas de comunicação. Aqui, a informação está relacionada à organização, na estrutura e na regulação dentro de sistemas; trata-se da informação como um meio de organizar e estabilizar sistemas, de maneira que a repetição (redundância) assegure a integridade da informação na comunicação."
+      },
+      {
+        "cls": "txt",
+        "t": "Dito isto, vale destacar o que se tem consolidado ao longo das últimas décadas como tecnologias da informação e da comunicação, em que a captura, a “mineração” e o processamento de dados condensam os fluxos da experiência humana, transformados em capital informativo e vendidos diuturnamente nas e pelas estruturas tecnológicas plataformizadas que abduzem nossa atenção. Nesse percurso, comunicação e informação caminham juntas e compõem o sistema central das tecnologias que, a partir das plataformas, interagem com a humanidade e que são denominadas de “inteligência” artificial primitiva ou generativa. Para muitos, tais tecnologias situam-se em um estágio pós-humano ou anti-humano."
+      },
+      {
+        "cls": "fonte",
+        "t": "Ana Regina Rêgo. Comunicação em tempos de inteligência artificial: ampliação ou redução das desigualdades? In: INTERCOM — Revista Brasileira de Ciências da Comunicação, n.º 48, 2025 (com adaptações)."
+      },
+      {
+        "cls": "cmd",
+        "t": "A respeito dos sentidos e de aspectos linguísticos do texto apresentado, julgue os itens a seguir."
+      }
+    ],
+    "p": 1,
+    "comando": "A respeito dos sentidos e de aspectos linguísticos do texto apresentado, julgue os itens a seguir."
+  },
+  {
+    "id": 2,
+    "section": "Língua Portuguesa",
+    "texto": "A construção “o que se tem consolidado” (primeiro período do segundo parágrafo) poderia ser reescrita como o que vem sendo consolidado, sem prejuízo da correção gramatical e do sentido do texto.",
+    "resposta": "C",
+    "comentario": "\"o que vem sendo consolidado\" mantém a ideia de processo contínuo e a correção.",
+    "p": 1
+  },
+  {
+    "id": 3,
+    "section": "Língua Portuguesa",
+    "texto": "No trecho “a captura, a ‘mineração’ e o processamento de dados” (primeiro período do segundo parágrafo), o emprego de aspas em ‘mineração’ cumpre o propósito de realçar uma oposição de sentido entre esse termo e o termo “captura”, que, assim como o primeiro, funciona como núcleo do sujeito.",
+    "resposta": "E",
+    "comentario": "as aspas marcam sentido figurado/especial de \"mineração\", não oposição a \"captura\".",
+    "p": 1
+  },
+  {
+    "id": 4,
+    "section": "Língua Portuguesa",
+    "texto": "No segundo período do segundo parágrafo, a oração “que são denominadas de ‘inteligência’ artificial primitiva ou generativa” refere-se ao termo “tecnologias”.",
+    "resposta": "C",
+    "comentario": "\"que são denominadas…\" retoma \"tecnologias\".",
+    "p": 1
+  },
+  {
+    "id": 5,
+    "section": "Língua Portuguesa",
+    "texto": "As vírgulas que isolam o trecho “a partir das plataformas” (segundo período do segundo parágrafo) poderiam ser substituídas por travessões, sem prejuízo da correção gramatical.",
+    "resposta": "C",
+    "comentario": "trecho intercalado; travessões duplos podem substituir as vírgulas.",
+    "p": 1
+  },
+  {
+    "id": 6,
+    "section": "Língua Portuguesa",
+    "texto": "Da leitura do texto infere-se que a tecnologia, em seus matizes contemporâneos, tem agido para modificar a maneira como as pessoas lidam com a informação.",
+    "resposta": "C",
+    "comentario": "o texto mostra a tecnologia alterando a relação das pessoas com a informação.",
+    "p": 1
+  },
+  {
+    "id": 7,
+    "section": "Língua Portuguesa",
+    "texto": "No segundo parágrafo do texto, a argumentação da autora segue no sentido de reconhecer os benefícios das tecnologias da informação e da comunicação para as experiências humanas.",
+    "resposta": "E",
+    "comentario": "o 2º parágrafo é crítico (dados \"vendidos\", atenção \"abduzida\"), não elogioso.",
+    "p": 1
+  },
+  {
+    "id": 8,
+    "section": "Língua Portuguesa",
+    "texto": "De acordo com as regras ortográficas vigentes, os vocábulos “pós-humano” e “anti-humano” podem ser corretamente grafados como duas palavras — pós humano e anti humano —, dada a autonomia dos prefixos e do vocábulo “humano”.",
+    "resposta": "E",
+    "comentario": "\"pós-humano\" (prefixo tônico pós-) e \"anti-humano\" (anti- antes de h) exigem hífen.",
+    "p": 1
+  },
+  {
+    "id": 9,
+    "section": "Língua Portuguesa",
+    "texto": "O significado do vocábulo “diuturnamente” alude ao período diurno, logo se depreende da leitura do primeiro período do segundo parágrafo que a venda dos fluxos de experiência acontece especificamente de dia.",
+    "resposta": "E",
+    "comentario": "\"diuturnamente\" = constantemente, dia e noite; não \"de dia\".",
+    "p": 1
+  },
+  {
+    "id": 10,
+    "section": "Língua Portuguesa",
+    "texto": "Depreende-se da argumentação geral do texto que o streaming representa uma modernização das relações de consumo de conteúdo audiovisual.",
+    "resposta": "C",
+    "comentario": "o texto apresenta o streaming como novo modelo de consumo, uma modernização.",
+    "pre": [
+      {
+        "cls": "txt",
+        "t": "O streaming hoje não é apenas um canal de distribuição. Ele se tornou um modelo de consumo cultural, baseado na personalização, na conveniência e na acessibilidade."
+      },
+      {
+        "cls": "txt",
+        "t": "Os algoritmos ajudam a moldar a experiência de cada usuário, enquanto o conteúdo pode ser acessado a qualquer hora e em qualquer dispositivo. Além disso, o streaming reduziu as barreiras entre criadores, marcas e audiência."
+      },
+      {
+        "cls": "txt",
+        "t": "Com a explosão das plataformas sob demanda, a lógica da programação linear perdeu força. Hoje, a audiência se dispersa por uma infinidade de opções, e o grande público foi substituído por múltiplas comunidades de interesse."
+      },
+      {
+        "cls": "fonte",
+        "t": "Internet: <https://midia.market> (com adaptações)."
+      },
+      {
+        "cls": "cmd",
+        "t": "Considerando a organização do texto precedente, seus sentidos e sua estrutura gramatical, julgue os itens que se seguem."
+      }
+    ],
+    "p": 1,
+    "comando": "Considerando a organização do texto precedente, seus sentidos e sua estrutura gramatical, julgue os itens que se seguem."
+  },
+  {
+    "id": 11,
+    "section": "Língua Portuguesa",
+    "texto": "A expressão “por múltiplas comunidades de interesse” (último período do texto) funciona sintaticamente como adjunto adverbial de meio.",
+    "resposta": "E",
+    "comentario": "\"por múltiplas comunidades de interesse\" é agente da passiva.",
+    "p": 1
+  },
+  {
+    "id": 12,
+    "section": "Língua Portuguesa",
+    "texto": "As relações sintáticas e o sentido do segundo período do primeiro parágrafo seriam preservados caso fosse introduzida a sequência que é imediatamente antes do termo “baseado”.",
+    "resposta": "E",
+    "comentario": "o sentido se mantém, mas a relação sintática muda (adjunto vira oração adjetiva).",
+    "discutivel": true,
+    "p": 1
+  },
+  {
+    "id": 13,
+    "section": "Língua Portuguesa",
+    "texto": "Os vocábulos “experiência”, “usuário”, “conteúdo” e “audiência” são acentuados de acordo com a mesma regra de acentuação gráfica.",
+    "resposta": "C",
+    "comentario": "todas são paroxítonas terminadas em ditongo crescente.",
+    "p": 1
+  },
+  {
+    "id": 14,
+    "section": "Língua Portuguesa",
+    "texto": "No primeiro período do terceiro parágrafo, o segmento “Com a explosão das plataformas sob demanda” expressa uma consequência da perda de força da programação linear tradicional.",
+    "resposta": "E",
+    "comentario": "a explosão das plataformas é causa, não consequência, da perda de força.",
+    "p": 1
+  },
+  {
+    "id": 15,
+    "section": "Língua Portuguesa",
+    "texto": "A expressão “Além disso” (segundo período do segundo parágrafo) constitui articulador discursivo de valor aditivo que estabelece, por meio de coesão, relação de sentido entre os períodos que compõem o parágrafo.",
+    "resposta": "C",
+    "comentario": "\"Além disso\" é conector aditivo que liga os períodos (coesão).",
+    "p": 1
+  },
+  {
+    "id": 16,
+    "section": "Língua Portuguesa",
+    "texto": "De acordo com o texto, a simplicidade da descrição da ciência como uma sucessão de descobertas de uma mente brilhante confere conforto à sociedade e, ao mesmo tempo, opera apagamentos na história da construção do conhecimento.",
+    "resposta": "E",
+    "comentario": "extrapolação: o texto não fala em conforto \"à sociedade\" nem em \"apagamentos\".",
+    "pre": [
+      {
+        "cls": "txt",
+        "t": "Costuma-se descrever a ciência como uma sucessão de descobertas, cada uma atribuída a uma mente excepcional. Essa descrição é mais simples e, por isso, mais confortável. Porém, é incompleta. Ideias científicas não emergem no vazio. Elas dependem de um sistema que contém instrumentos, linguagem e dados acumulados, bem como de comunidades capazes de reconhecer e, principalmente, criticar seus significados. Para que haja um desfecho por orientação vetorial que conduza ao que conhecemos como a consagração de uma teoria, é preciso haver, sobretudo, convergência."
+      },
+      {
+        "cls": "txt",
+        "t": "Uma nova ideia pode se aproximar mais da verdade e, ainda assim, permanecer estéril se os vetores do sistema científico não estiverem suficientemente acoplados para absorvê-la. Por outro lado, quando múltiplas linhas de evidência passam a operar de forma coerente, mesmo ideias inicialmente controversas tornam-se inevitáveis."
+      },
+      {
+        "cls": "txt",
+        "t": "A consequência é que a história da ciência é menos uma sucessão de lampejos isolados e mais a de sincronizações oriundas de massas de dados e ideias que vão gradualmente se articulando até que o peso de um novo paradigma se torne insustentável."
+      },
+      {
+        "cls": "fonte",
+        "t": "Marcos Buckeridge. Quando as ideias encontram (ou não) o seu tempo. Internet: <jornal.usp.br> (com adaptações)."
+      },
+      {
+        "cls": "cmd",
+        "t": "Julgue os itens seguintes, com base nas ideias e construções linguísticas do texto precedente."
+      }
+    ],
+    "p": 1,
+    "comando": "Julgue os itens seguintes, com base nas ideias e construções linguísticas do texto precedente."
+  },
+  {
+    "id": 17,
+    "section": "Língua Portuguesa",
+    "texto": "Haveria prejuízo da correção gramatical do texto caso se inserisse vírgula após a palavra “controversas” (final do segundo parágrafo).",
+    "resposta": "C",
+    "comentario": "a vírgula separaria o sujeito do verbo \"tornam-se\".",
+    "p": 1
+  },
+  {
+    "id": 18,
+    "section": "Língua Portuguesa",
+    "texto": "Da leitura do texto infere-se que a aproximação de uma teoria à verdade é fator menos decisivo que a existência de certa orientação vetorial de um sistema científico para a consagração dessa teoria e para o consequente surgimento de um paradigma científico.",
+    "resposta": "C",
+    "comentario": "uma ideia pode se aproximar da verdade e ficar estéril sem convergência/acoplamento.",
+    "p": 1
+  },
+  {
+    "id": 19,
+    "section": "Língua Portuguesa",
+    "texto": "No segmento “é preciso haver, sobretudo, convergência” (final do primeiro parágrafo), a oração “haver, sobretudo, convergência” liga-se sintaticamente ao adjetivo “preciso”.",
+    "resposta": "E",
+    "comentario": "a oração \"haver convergência\" é sujeito de \"é preciso\", não complemento do adjetivo.",
+    "p": 1
+  },
+  {
+    "id": 20,
+    "section": "Língua Portuguesa",
+    "texto": "De acordo com o texto, na história da ciência, as sincronizações provenientes de massas de dados e de ideias que, aos poucos, se vão articulando têm mais peso que a sucessão de lampejos.",
+    "resposta": "C",
+    "comentario": "história da ciência: menos lampejos, mais sincronizações graduais.",
+    "p": 1
+  },
+  {
+    "id": 21,
+    "section": "Língua Portuguesa",
+    "texto": "O emprego do presente do indicativo em “Ideias científicas não emergem no vazio” (primeiro parágrafo) confere à ideia expressa no período valor de uma verdade absoluta.",
+    "resposta": "C",
+    "comentario": "presente com valor de verdade geral/atemporal.",
+    "discutivel": true,
+    "p": 1
+  },
+  {
+    "id": 22,
+    "section": "Língua Portuguesa",
+    "texto": "Na oração “Uma nova ideia pode se aproximar mais da verdade” (segundo parágrafo), o emprego do pronome “se” entre as formas verbais “pode” e “aproximar” é típico de textos informais, de modo que, para garantir a formalidade e a correção gramatical do texto, tal pronome deveria ser deslocado para a posição enclítica à forma verbal “aproximar”.",
+    "resposta": "E",
+    "comentario": "a próclise \"pode se aproximar\" é aceita na norma culta.",
+    "p": 1
+  },
+  {
+    "id": 23,
+    "section": "Raciocínio Lógico",
+    "texto": "P é equivalente a \"Ele não atacou o animal ou não ficou provado, mas ele respondeu\".",
+    "resposta": "E",
+    "comentario": "P é (A∧B)→C; \"(¬A∨¬B) ∧ C\" não é equivalente.",
+    "separator": true,
+    "pre": [
+      {
+        "cls": "prop",
+        "t": "P: Se ele atacou o animal e ficar provado, ele responderá."
+      },
+      {
+        "cls": "cmd",
+        "t": "Julgue os itens seguintes acerca dos aspectos da proposição P relacionados à lógica sentencial."
+      }
+    ],
+    "p": 1,
+    "comando": "Julgue os itens seguintes acerca dos aspectos da proposição P relacionados à lógica sentencial."
+  },
+  {
+    "id": 24,
+    "section": "Raciocínio Lógico",
+    "texto": "P é equivalente a \"Se ele não respondeu, então não atacou o animal ou não ficou provado\".",
+    "resposta": "C",
+    "comentario": "contrapositiva: ¬C → ¬(A∧B) ≡ ¬C → (¬A∨¬B).",
+    "p": 1
+  },
+  {
+    "id": 25,
+    "section": "Raciocínio Lógico",
+    "texto": "O número de linhas da tabela-verdade associada à proposição P é superior a 10.",
+    "resposta": "E",
+    "comentario": "3 proposições simples → 8 linhas.",
+    "p": 1
+  },
+  {
+    "id": 26,
+    "section": "Raciocínio Lógico",
+    "texto": "A negação de P pode ser expressa por \"Ele atacou o animal e ficou provado, mas ele não respondeu\".",
+    "resposta": "C",
+    "comentario": "negação de (A∧B)→C é A∧B∧¬C.",
+    "p": 1
+  },
+  {
+    "id": 27,
+    "section": "Raciocínio Lógico",
+    "texto": "Se for falsa a proposição \"ficou provado\", P será verdadeira independentemente do valor lógico de suas outras proposições simples constituintes.",
+    "resposta": "C",
+    "comentario": "antecedente falso torna a condicional verdadeira.",
+    "p": 1
+  },
+  {
+    "id": 28,
+    "section": "Raciocínio Lógico",
+    "texto": "A sentença \"Um auditor analisou o edital de licitação e a empresa vencedora não cumpriu os requisitos?\" é uma proposição composta.",
+    "resposta": "E",
+    "comentario": "frase interrogativa não é proposição.",
+    "p": 1
+  },
+  {
+    "id": 29,
+    "section": "Raciocínio Lógico",
+    "texto": "É válido o argumento que tem por premissas as proposições P, Q e R e por conclusão a proposição “Corro risco de não ser compreendido.”.",
+    "resposta": "C",
+    "comentario": "R afirma \"falo palavras difíceis\"; com P, por modus ponens, \"corro o risco\". Válido.",
+    "pre": [
+      {
+        "cls": "prop",
+        "t": "P: “Se eu falar palavras difíceis, corro o risco de não ser compreendido.”"
+      },
+      {
+        "cls": "prop",
+        "t": "Q: “Se eu falar palavras com duplo sentido, corro o risco de não ser compreendido.”"
+      },
+      {
+        "cls": "prop",
+        "t": "R: “Falo palavras difíceis, mas não com duplo sentido.”"
+      },
+      {
+        "cls": "cmd",
+        "t": "Considerando as proposições P, Q e R precedentes, julgue os itens seguintes."
+      }
+    ],
+    "p": 1,
+    "comando": "Considerando as proposições P, Q e R precedentes, julgue os itens seguintes."
+  },
+  {
+    "id": 30,
+    "section": "Raciocínio Lógico",
+    "texto": "O número de linhas da tabela-verdade associada à proposição R é superior a 5.",
+    "resposta": "E",
+    "comentario": "R tem 2 proposições simples → 4 linhas.",
+    "p": 1
+  },
+  {
+    "id": 31,
+    "section": "Raciocínio Lógico",
+    "texto": "A negação da proposição R pode ser expressa por “Falo palavras com duplo sentido, mas não palavras difíceis.”.",
+    "resposta": "E",
+    "comentario": "negação de R: \"Não falo palavras difíceis ou falo palavras com duplo sentido\".",
+    "p": 1
+  },
+  {
+    "id": 32,
+    "section": "Raciocínio Lógico",
+    "texto": "A proposição P ˄ Q (lê-se P e Q) pode ser expressa por “Se eu falar palavras difíceis ou com duplo sentido, corro o risco de não ser compreendido.”.",
+    "resposta": "C",
+    "comentario": "(D→R)∧(S→R) ≡ (D∨S)→R.",
+    "p": 1
+  },
+  {
+    "id": 33,
+    "section": "História do Brasil",
+    "texto": "A Constituição de 1824, elaborada por assembleia constituinte que trabalhou por mais de um ano, reflete as circunstâncias históricas da época, no país e no mundo, e, ao ser promulgada pelo Parlamento, fez do Brasil uma monarquia, o que tornou o país exceção na republicana América do Sul.",
+    "resposta": "E",
+    "comentario": "a Constituição de 1824 foi outorgada; a Constituinte foi dissolvida em 1823.",
+    "separator": true,
+    "pre": [
+      {
+        "cls": "cmd",
+        "t": "A respeito de aspectos históricos, políticos e sociais da formação e da evolução do Brasil, julgue os itens a seguir."
+      }
+    ],
+    "p": 1,
+    "comando": "A respeito de aspectos históricos, políticos e sociais da formação e da evolução do Brasil, julgue os itens a seguir."
+  },
+  {
+    "id": 34,
+    "section": "História do Brasil",
+    "texto": "A denominada Revolução de 1930 rompeu com as estruturas carcomidas da República Velha: o surgimento de lideranças novas, como Getúlio Vargas, desvinculadas da experiência política do período anterior, conduziu o país à modernidade, imune a tentações autoritárias e a alianças com os militares.",
+    "resposta": "E",
+    "comentario": "1930 teve apoio militar e desembocou no autoritarismo do Estado Novo.",
+    "p": 1
+  },
+  {
+    "id": 35,
+    "section": "História do Brasil",
+    "texto": "No Brasil, a história do trabalho está profundamente associada ao passado colonial, uma vez que, dentro do sistema escravocrata, dominante até fins do século XIX, as relações eram caracterizadas pela posse total não somente da força de trabalho, mas também do corpo e da vida dos indivíduos escravizados.",
+    "resposta": "C",
+    "comentario": "a escravidão implicava posse do corpo e da vida do escravizado.",
+    "p": 1
+  },
+  {
+    "id": 36,
+    "section": "História do Brasil",
+    "texto": "O Primeiro Reinado (1822-1831) foi marcado por desavenças políticas entre D. Pedro I e setores da sociedade brasileira, o que se confirmou pela dissolução da Assembleia Constituinte e outorga da Constituição de 1824, fatos que alimentaram a crescente oposição às atitudes do imperador, consideradas absolutistas.",
+    "resposta": "C",
+    "comentario": "dissolução da Constituinte e outorga de 1824 alimentaram a oposição a D. Pedro I.",
+    "p": 1
+  },
+  {
+    "id": 37,
+    "section": "História do Brasil",
+    "texto": "O 15 de Novembro de 1889 foi um golpe de Estado conduzido por militares, os quais, desprovidos de uma base social que lhes desse sustentação política, foram alijados do poder já nos primeiros anos do regime republicano.",
+    "resposta": "E",
+    "comentario": "militares governaram até 1894 (República da Espada), com apoio de setores civis.",
+    "p": 1
+  },
+  {
+    "id": 38,
+    "section": "História do Maranhão",
+    "texto": "A expedição de Daniel de La Touche, em 1612, resultou na fundação de São Luís e integrou o projeto francês denominado França Equinocial, que buscava estabelecer uma colônia francesa na região, contando com relações e alianças com grupos indígenas locais.",
+    "resposta": "C",
+    "comentario": "São Luís fundada em 1612 na França Equinocial, com alianças com os Tupinambá.",
+    "separator": true,
+    "pre": [
+      {
+        "cls": "cmd",
+        "t": "Sobre a história do Maranhão, julgue os itens seguintes."
+      },
+      {
+        "cls": "txt",
+        "t": "No início do século XVII, a presença francesa no litoral norte da América portuguesa ganhou maior organização com a expedição comandada por Daniel de La Touche, senhor de La Ravardière. Em 1612, os franceses estabeleceram-se na região da atual ilha de São Luís, buscando consolidar um empreendimento colonial conhecido como França Equinocial."
+      },
+      {
+        "cls": "cmd",
+        "t": "A respeito desse episódio da história do Maranhão, julgue o item a seguir."
+      }
+    ],
+    "p": 1,
+    "comando": "Sobre a história do Maranhão, julgue os itens seguintes."
+  },
+  {
+    "id": 39,
+    "section": "História do Maranhão",
+    "texto": "A cidade de São Luís teve sua origem associada à ocupação francesa de 1612, recebendo esse nome em homenagem ao rei Luís XIII da França, no contexto da tentativa de implantação da França Equinocial.",
+    "resposta": "C",
+    "comentario": "o nome homenageia o rei Luís XIII.",
+    "pre": [
+      {
+        "cls": "txt",
+        "t": "No contexto das disputas coloniais pelo norte da América portuguesa, uma expedição francesa liderada por Daniel de La Touche estabeleceu-se, em 1612, na ilha de Upaon-Açu. Os franceses construíram uma fortificação e deram início ao núcleo que originaria a atual capital maranhense."
+      },
+      {
+        "cls": "cmd",
+        "t": "A respeito da fundação de São Luís, julgue o item a seguir."
+      }
+    ],
+    "p": 1,
+    "comando": "A respeito da fundação de São Luís, julgue o item a seguir."
+  },
+  {
+    "id": 40,
+    "section": "História do Maranhão",
+    "texto": "A ocupação holandesa do Maranhão, iniciada em 1641, encontrou forte resistência local e terminou em 1644, quando os holandeses foram definitivamente expulsos da região, antes mesmo de sua expulsão de Pernambuco.",
+    "resposta": "C",
+    "comentario": "holandeses expulsos do MA em 1644; de Pernambuco só em 1654.",
+    "pre": [
+      {
+        "cls": "txt",
+        "t": "Durante o período da União Ibérica e das disputas pelo controle das possessões portuguesas na América, os holandeses expandiram sua presença pelo Nordeste e, em 1641, ocuparam São Luís e outras áreas do Maranhão. A dominação, entretanto, encontrou resistência dos habitantes locais."
+      },
+      {
+        "cls": "cmd",
+        "t": "A respeito da expulsão dos holandeses do Maranhão, julgue o item a seguir."
+      }
+    ],
+    "p": 1,
+    "comando": "A respeito da expulsão dos holandeses do Maranhão, julgue o item a seguir."
+  },
+  {
+    "id": 41,
+    "section": "História do Maranhão",
+    "texto": "A vitória militar das forças independentistas na Batalha do Jenipapo provocou a imediata rendição das tropas portuguesas comandadas por João José da Cunha Fidié e determinou, ainda em março de 1823, a adesão oficial do Maranhão à Independência do Brasil.",
+    "resposta": "E",
+    "comentario": "no Jenipapo (13/3/1823) os brasileiros perderam militarmente; adesão do MA foi em 28/7/1823.",
+    "p": 1
+  },
+  {
+    "id": 42,
+    "section": "Geografia (Brasil e Maranhão)",
+    "texto": "Migrações pendulares estão associadas a deslocamentos diários motivados por atividades como trabalho ou estudo, refletindo processos de conurbação e desigualdades na oferta de oportunidades residenciais e de serviços públicos.",
+    "resposta": "C",
+    "comentario": "migração pendular = deslocamento diário por trabalho/estudo, ligado à conurbação.",
+    "separator": true,
+    "pre": [
+      {
+        "cls": "cmd",
+        "t": "Sobre a Geografia do Brasil, julgue os itens seguintes."
+      }
+    ],
+    "p": 1,
+    "comando": "Sobre a Geografia do Brasil, julgue os itens seguintes."
+  },
+  {
+    "id": 43,
+    "section": "Geografia (Brasil e Maranhão)",
+    "texto": "As migrações internas no Brasil diminuíram significativamente após a década de 1980, devido à completa homogeneização do desenvolvimento regional, o que reduziu os diferenciais socioeconômicos responsáveis pelos deslocamentos populacionais.",
+    "resposta": "E",
+    "comentario": "não houve \"completa homogeneização\" do desenvolvimento regional.",
+    "p": 1
+  },
+  {
+    "id": 44,
+    "section": "Geografia (Brasil e Maranhão)",
+    "texto": "A migração rural−urbana, predominante nas décadas de 1950 a 1980 no Brasil, resultou na consolidação de pequenas comunidades autosustentáveis nas cidades, com baixos índices de informalidade e desigualdade socioespacial.",
+    "resposta": "E",
+    "comentario": "o êxodo rural gerou favelização, informalidade e desigualdade.",
+    "p": 1
+  },
+  {
+    "id": 45,
+    "section": "Geografia (Brasil e Maranhão)",
+    "texto": "As áreas centrais das metrópoles brasileiras, espaços de concentração de serviços e de funções urbanas, têm sofrido processos de reconfiguração e refuncionalização em razão da constituição de novas centralidades e dinâmicas no processo de desenvolvimento típico metropolitano.",
+    "resposta": "C",
+    "comentario": "áreas centrais se refuncionalizam com novas centralidades.",
+    "p": 1
+  },
+  {
+    "id": 46,
+    "section": "Geografia (Brasil e Maranhão)",
+    "texto": "O crescimento urbano-industrial acelerado, associado à ausência histórica de políticas de ordenamento territorial, contribuiu para a ocupação irregular e para a degradação ambiental em áreas metropolitanas, particularmente em regiões de mananciais, encostas e várzeas.",
+    "resposta": "C",
+    "comentario": "urbanização sem planejamento → ocupação de mananciais, encostas e várzeas.",
+    "p": 1
+  },
+  {
+    "id": 47,
+    "section": "Geografia (Brasil e Maranhão)",
+    "texto": "No futuro o Maranhão passará a produzir petróleo e gás natural. Uma das áreas é um bloco em Barreirinhas, na costa do Estado, em uma estrutura de Escudos cristalinos",
+    "resposta": "E",
+    "comentario": "petróleo e gás ocorrem em bacias sedimentares, não em escudos cristalinos.",
+    "separator": true,
+    "p": 1
+  },
+  {
+    "id": 48,
+    "section": "Geografia (Brasil e Maranhão)",
+    "texto": "É uma cidade estrategicamente localizada ao sul do Maranhão, entre as regiões norte, nordeste e centro-oeste, com grande extensão de terras propícias para o cultivo agrícola da soja. É um dos polos agrícolas de grande destaque do Maranhão. A cidade retratada no texto é Imperatriz.",
+    "resposta": "E",
+    "comentario": "a cidade da soja no sul do MA é Balsas, não Imperatriz.",
+    "p": 1
+  },
+  {
+    "id": 49,
+    "section": "Geografia (Brasil e Maranhão)",
+    "texto": "O fenômeno que teve grande destaque nas imprensas estadual e nacional, nos meses de março e de abril de 2023, no município de Buriticupu - MA, dá origem a formas de relevo conhecidas, cientificamente, por voçorocas.",
+    "resposta": "C",
+    "comentario": "as crateras de Buriticupu são voçorocas.",
+    "p": 1
+  },
+  {
+    "id": 50,
+    "section": "Geografia (Brasil e Maranhão)",
+    "texto": "O estado do Maranhão é formado por dois grandes biomas: a Amazônia e o Cerrado e outros dois de transição, a Amazônia/Cerrado e a Caatinga/Cerrado, além dos mangues, totalizando biomas de grande biodiversidade.",
+    "resposta": "C",
+    "comentario": "MA: Amazônia e Cerrado, transições e mangues.",
+    "p": 1
+  },
+  {
+    "id": 51,
+    "section": "Informática",
+    "texto": "No Windows, o Explorador de Arquivos é a ferramenta de gerenciamento que contém a lista de pastas ou diretórios, em que se encontram os arquivos do sistema operacional e do usuário.",
+    "resposta": "C",
+    "comentario": "o Explorador de Arquivos lista pastas do sistema e do usuário.",
+    "separator": true,
+    "pre": [
+      {
+        "cls": "cmd",
+        "t": "A respeito do Windows 10 e da organização de arquivos e pastas, julgue o item a seguir."
+      }
+    ],
+    "p": 2,
+    "comando": "A respeito do Windows 10 e da organização de arquivos e pastas, julgue o item a seguir."
+  },
+  {
+    "id": 52,
+    "section": "Informática",
+    "texto": "No Explorador de Arquivos, a opção Incluir na biblioteca permite que se organizem as pastas por grupos ou temas, de acordo com o interesse do usuário do sistema.",
+    "resposta": "C",
+    "comentario": "bibliotecas agrupam pastas por tema (Documentos, Imagens…).",
+    "p": 2
+  },
+  {
+    "id": 53,
+    "section": "Informática",
+    "texto": "Um arquivo com a extensão PDF pode ser aberto por qualquer programa do Windows.",
+    "resposta": "E",
+    "comentario": "PDF exige leitor compatível (navegador, Acrobat etc.).",
+    "p": 2
+  },
+  {
+    "id": 54,
+    "section": "Informática",
+    "texto": "No Windows, podem coexistir arquivos com os nomes JANELA.TXT e janela.txt, pois o sistema operacional trata os dois como arquivos diferentes.",
+    "resposta": "E",
+    "comentario": "o Windows não diferencia maiúsculas de minúsculas em nomes de arquivo.",
+    "p": 2
+  },
+  {
+    "id": 55,
+    "section": "Informática",
+    "texto": "Para descobrir o tipo de uma pasta, utilizando o Explorador de Arquivos do Windows 10, é suficiente clicar com o botão direito do mouse sobre a pasta desejada e selecionar a opção Propriedades.",
+    "resposta": "C",
+    "comentario": "o tipo aparece em Propriedades (botão direito).",
+    "p": 2
+  },
+  {
+    "id": 56,
+    "section": "Informática",
+    "texto": "As tentativas de engenharia social podem ser evitadas por meio de medidas simples, como, por exemplo, não fornecer quaisquer informações consideradas como confidenciais a pessoas desconhecidas.",
+    "resposta": "C",
+    "comentario": "não fornecer dados confidenciais a desconhecidos é a defesa básica.",
+    "separator": true,
+    "pre": [
+      {
+        "cls": "cmd",
+        "t": "Em relação aos conceitos de redes de computadores, às noções de vírus, worms e pragas virtuais e aos conceitos de inteligência artificial (IA), julgue o item seguinte."
+      }
+    ],
+    "p": 2,
+    "comando": "Em relação aos conceitos de redes de computadores, às noções de vírus, worms e pragas virtuais e aos conceitos de inteligência artificial (IA), julgue o item seguinte."
+  },
+  {
+    "id": 57,
+    "section": "Informática",
+    "texto": "O Cavalo de Troia executa diversas tarefas no ambiente com o objetivo de coletar informações. No entanto, tarefas mais complexas, como, por exemplo, reinicializar sistemas, não são executadas por ele.",
+    "resposta": "E",
+    "comentario": "o cavalo de Troia pode executar várias ações, inclusive reiniciar o sistema.",
+    "p": 2
+  },
+  {
+    "id": 58,
+    "section": "Informática",
+    "texto": "Um vírus de computador pode se manifestar de diversas maneiras, como, por exemplo, exibindo mensagem na tela do computador ou apagando, sem que o usuário perceba inicialmente, arquivos fundamentais do disco rígido.",
+    "resposta": "C",
+    "comentario": "vírus pode exibir mensagens ou apagar arquivos.",
+    "p": 2
+  },
+  {
+    "id": 59,
+    "section": "Informática",
+    "texto": "Um tipo de ataque contra o serviço DNS é o pharming, que envolve o redirecionamento do navegador do usuário para sítios falsos por meio da técnica conhecida como envenenamento de cache DNS.",
+    "resposta": "C",
+    "comentario": "pharming = envenenamento de cache DNS que redireciona para sites falsos.",
+    "p": 2
+  },
+  {
+    "id": 60,
+    "section": "Informática",
+    "texto": "Uma das partes de um vírus de computador é o mecanismo de infecção, que determina quando a carga útil do vírus será ativada no dispositivo infectado.",
+    "resposta": "E",
+    "comentario": "quem define quando a carga útil é ativada é o gatilho (trigger); o mecanismo de infecção é a forma de propagação.",
+    "p": 2
+  },
+  {
+    "id": 61,
+    "section": "Informática",
+    "texto": "Os softwares de spyware têm como principal objetivo adquirir informações confidenciais de empresas e são usados como uma forma de espionagem empresarial.",
+    "resposta": "E",
+    "comentario": "spyware monitora o usuário em geral, não tem como objetivo principal a espionagem empresarial.",
+    "p": 2
+  },
+  {
+    "id": 62,
+    "section": "Informática",
+    "texto": "Em determinado computador, no histórico de navegação de um usuário do Google Chrome, observou-se que havia, na lista de endereços acessados, mais sítios com endereços iniciados com https:// do que com http://. Nessa situação, com base somente nessa informação, conclui-se que esse usuário acessa mais sítios de intranet do que de Internet, uma vez que uma das prerrogativas da intranet é o caráter limitado ao seu acesso.",
+    "resposta": "E",
+    "comentario": "https indica conexão criptografada, não intranet.",
+    "separator": true,
+    "p": 2
+  },
+  {
+    "id": 63,
+    "section": "Informática",
+    "texto": "A Internet pode ser dividida em intranet, restrita aos serviços disponibilizados na rede interna de uma organização, e extranet, com os demais serviços (exemplo: redes sociais e sítios de outras organizações).",
+    "resposta": "E",
+    "comentario": "intranet/extranet não são divisões da Internet.",
+    "p": 2
+  },
+  {
+    "id": 64,
+    "section": "Informática",
+    "texto": "A Internet e a intranet, devido às suas características específicas, operam com protocolos diferentes, adequados a cada situação.",
+    "resposta": "E",
+    "comentario": "Internet e intranet usam os mesmos protocolos (TCP/IP).",
+    "p": 2
+  },
+  {
+    "id": 65,
+    "section": "Informática",
+    "texto": "Uma intranet é uma aplicação do conjunto de transportes e de aplicação do protocolo TCP/IP em uma rede privada.",
+    "resposta": "C",
+    "comentario": "intranet é rede privada que usa a pilha TCP/IP.",
+    "p": 2
+  },
+  {
+    "id": 66,
+    "section": "Informática",
+    "texto": "Ao elaborar um documento no Microsoft Word, o recurso 'Quebra de Página' é utilizado para forçar o início de uma nova página, independentemente do espaço restante na página atual, sendo útil para organizar seções de um texto.",
+    "resposta": "C",
+    "comentario": "quebra de página força o início de nova página.",
+    "separator": true,
+    "pre": [
+      {
+        "cls": "cmd",
+        "t": "Analise as seguintes afirmações sobre a proteção e edições de documentos no Word:"
+      }
+    ],
+    "p": 2,
+    "comando": "Analise as seguintes afirmações sobre a proteção e edições de documentos no Word:"
+  },
+  {
+    "id": 67,
+    "section": "Informática",
+    "texto": "Para editar arquivos com senha no Word, basta que o usuário crie uma cópia do arquivo em outra pasta o que desfaz a estrutura de senha do arquivo.",
+    "resposta": "E",
+    "comentario": "copiar o arquivo não remove a senha.",
+    "p": 2
+  },
+  {
+    "id": 68,
+    "section": "Informática",
+    "texto": "No Word, uso de Estilos (como Título 1, Título 2 e Normal) permite a padronização automática de fontes e espaçamentos em todo o documento, além de facilitar a criação de sumários automáticos.",
+    "resposta": "C",
+    "comentario": "estilos padronizam formatação e permitem sumário automático.",
+    "p": 2
+  },
+  {
+    "id": 69,
+    "section": "Informática",
+    "texto": "No Microsoft Word (Microsoft 365), o recurso de controle de alterações permite registrar edições feitas em um documento colaborativo, exibindo inclusões, exclusões e comentários, recurso semelhante ao disponível no Google Docs do Google Workspace.",
+    "resposta": "C",
+    "comentario": "Controle de Alterações do Word ≈ modo sugestão do Google Docs.",
+    "p": 2
+  },
+  {
+    "id": 70,
+    "section": "Informática",
+    "texto": "No Word, a estrutura de uma tabela permanece inalterada após sua criação, de modo que operações como reorganização de células exigem a criação de uma nova tabela.",
+    "resposta": "E",
+    "comentario": "tabelas podem ser editadas (mesclar, dividir, inserir/excluir células).",
+    "p": 2
+  },
+  {
+    "id": 71,
+    "section": "Informática",
+    "texto": "Na elaboração de planilhas eletrônicas como o Microsoft Excel ou o Google Sheets, ao se copiar uma fórmula que contém referências absolutas (ex: $A$1) para outras células, os endereços das células referenciadas na fórmula serão automaticamente ajustados com base na nova posição, mantendo a flexibilidade para cálculos em diferentes contextos.",
+    "resposta": "E",
+    "comentario": "referência absoluta ($A$1) não se ajusta ao copiar.",
+    "pre": [
+      {
+        "cls": "cmd",
+        "t": "Sobre o excel e suas características, julgue os itens seguintes."
+      }
+    ],
+    "p": 2,
+    "comando": "Sobre o excel e suas características, julgue os itens seguintes."
+  },
+  {
+    "id": 72,
+    "section": "Informática",
+    "texto": "O Microsoft Excel permite a vinculação de referências a outras planilhas, além da própria planilha que está em edição.",
+    "resposta": "C",
+    "comentario": "o Excel aceita referências a outras planilhas e pastas de trabalho.",
+    "p": 2
+  },
+  {
+    "id": 73,
+    "section": "Informática",
+    "texto": "No Excel, não é possível a ordenação dos dados enquanto o filtro estiver ativo, sendo mantida a sequência original das linhas.",
+    "resposta": "E",
+    "comentario": "é possível ordenar com filtro ativo.",
+    "p": 2
+  },
+  {
+    "id": 74,
+    "section": "Informática",
+    "texto": "Uma apresentação no PowerPoint 2016 somente pode ser salva no formato .pptx.",
+    "resposta": "E",
+    "comentario": "também salva em .ppt, .pdf, .potx etc.",
+    "separator": true,
+    "p": 2
+  },
+  {
+    "id": 75,
+    "section": "Informática",
+    "texto": "A ferramenta [ícone] Conta-gotas do PowerPoint 2016 permite ao usuário aplicar cores em objetos a partir de outros objetos.",
+    "resposta": "C",
+    "comentario": "o Conta-gotas (ícone de pipeta) captura a cor de um objeto e a aplica em outro.",
+    "p": 2
+  },
+  {
+    "id": 76,
+    "section": "Informática",
+    "texto": "No ambiente Windows, as teclas de atalho Shift + Del são utilizadas para excluir informações do preenchimento automático em formulários contidos nas páginas acessadas pelo Google Chrome.",
+    "resposta": "C",
+    "comentario": "no Chrome, Shift+Del sobre a sugestão destacada apaga a entrada do preenchimento automático.",
+    "separator": true,
+    "p": 2
+  },
+  {
+    "id": 77,
+    "section": "Informática",
+    "texto": "Dentro do navegador Google Chrome (Versão 59, em português, sistema operacional Windows 7), é possível abrir uma nova guia através das teclas de atalho Ctrl + N. Obs: O caractere “+” foi utilizado apenas para interpretação do item descrito.",
+    "resposta": "E",
+    "comentario": "Ctrl+N abre nova janela; nova guia é Ctrl+T.",
+    "p": 2
+  },
+  {
+    "id": 78,
+    "section": "Informática",
+    "texto": "Dentro do navegador Google Chrome (Versão 59, em português, utilizando o sistema operacional Windows 7), é possível abrir uma nova aba através das teclas de atalho Ctrl + T. Obs: O caractere “+” foi utilizado apenas para interpretação do item descrito.",
+    "resposta": "C",
+    "comentario": "Ctrl+T abre nova aba.",
+    "p": 2
+  },
+  {
+    "id": 79,
+    "section": "Informática",
+    "texto": "A internet está presente no cotidiano de muitas pessoas e disponibiliza acesso a uma infinidade de conteúdos e sistemas. Considerando os navegadores: Internet Explorer, Mozilla Firefox e Google Chrome, bem como os mecanismos de busca na Web, julgue o item a seguir. No Google Chrome (versão 69 para desktop), é possível alterar para o modo tela cheia usando a tecla F5.",
+    "resposta": "E",
+    "comentario": "tela cheia é F11; F5 atualiza.",
+    "separator": true,
+    "p": 2
+  },
+  {
+    "id": 80,
+    "section": "Informática",
+    "texto": "No Outlook 2013, uma forma de anexar um arquivo a uma mensagem é arrastando‐o de uma pasta do computador e soltando‐o na janela da mensagem.",
+    "resposta": "C",
+    "comentario": "arrastar e soltar anexa o arquivo no Outlook.",
+    "p": 2
+  },
+  {
+    "id": 81,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "O Estatuto da Polícia Militar do Maranhão regula a situação, obrigações, direitos, deveres e prerrogativas dos policiais-militares e organização básica da Polícia Militar do Maranhão.",
+    "resposta": "E",
+    "comentario": "o art. 1º regula situação, obrigações, direitos, deveres e prerrogativas; \"organização básica\" não está no Estatuto (é matéria da LOB) (art. 1º).",
+    "separator": true,
+    "pre": [
+      {
+        "cls": "cmd",
+        "t": "De acordo com a Lei estadual nº 6.513/1995 e suas alterações (Estatuto dos Policiais Militares do Estado do Maranhão), julgue os itens seguintes."
+      }
+    ],
+    "p": 2,
+    "comando": "De acordo com a Lei estadual nº 6.513/1995 e suas alterações (Estatuto dos Policiais Militares do Estado do Maranhão), julgue os itens seguintes."
+  },
+  {
+    "id": 82,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "São militares da ativa os alunos dos cursos de formação de policiais-militares.",
+    "resposta": "C",
+    "comentario": "alunos dos cursos de formação de policiais-militares estão \"na ativa\" (art. 2º, §2º, I, \"d\").",
+    "p": 2
+  },
+  {
+    "id": 83,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "São equivalentes as expressões “na ativa”, “da ativa”, “em serviço ativo”, “em serviço na ativa”, “em atividade ou em atividade policial militar”, conferidas aos policiais militares no desempenho de cargo, comissão, encargos, incumbência ou missão, serviço ou atividade policial-militar ou considerada de natureza policial-militar, nas organizações Policiais Militares, bem como em outros órgãos do Estado, quando previsto em lei ou regulamento.",
+    "resposta": "C",
+    "comentario": "reprodução do art. 6º (expressões equivalentes \"na ativa\", \"da ativa\" etc.) (art. 6º).",
+    "p": 2
+  },
+  {
+    "id": 84,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "O ingresso no Quadro de Oficiais de Saúde (QOS) será mediante concurso público de provas e/ou de provas e títulos e aprovação inclusive nos exames: médico, físico e psicotécnico.",
+    "resposta": "C",
+    "comentario": "ingresso no QOS por concurso de provas e/ou provas e títulos e aprovação nos exames médico, físico e psicotécnico (art. 13, caput).",
+    "p": 2
+  },
+  {
+    "id": 85,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "O major e o tenente-coronel são considerados oficiais superiores.",
+    "resposta": "C",
+    "comentario": "círculo de oficiais superiores: coronel, tenente-coronel e major (art. 19, quadro).",
+    "p": 2
+  },
+  {
+    "id": 86,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "Os Cadetes são declarados Aspirantes-a-Oficial pelo Governador do estado mediante decreto.",
+    "resposta": "E",
+    "comentario": "os Cadetes são declarados Aspirantes-a-Oficial pelo Comandante-Geral, não pelo Governador por decreto (art. 24).",
+    "p": 2
+  },
+  {
+    "id": 87,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "Na falta de militar qualificado para a função, poderá ser designado para o exercício da mesma outro militar de posto ou graduação inferior, obedecida a precedência hierárquica.",
+    "resposta": "C",
+    "comentario": "reprodução literal (art. 34).",
+    "p": 2
+  },
+  {
+    "id": 88,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "Amar a verdade e a responsabilidade como fundamentos da dignidade pessoal é um preceito da ética policial militar.",
+    "resposta": "C",
+    "comentario": "é o 1º preceito da ética policial-militar (art. 40, I).",
+    "separator": true,
+    "p": 2
+  },
+  {
+    "id": 89,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "Ao policial-militar da ativa é vedado comerciar ou tomar parte na administração ou gerência de sociedade ou dela ser sócio ou participar, inclusive como acionista ou quotista em sociedade anônima.",
+    "resposta": "E",
+    "comentario": "a lei excetua a participação como acionista ou quotista em S/A ou sociedade por quotas de responsabilidade limitada (art. 41, caput).",
+    "p": 2
+  },
+  {
+    "id": 90,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "Comando é vinculado ao grau hierárquico e constitui uma prerrogativa impessoal, em cujo exercício o policial-militar se define e se caracteriza como chefe.",
+    "resposta": "C",
+    "comentario": "reprodução do conceito de Comando (art. 48, caput).",
+    "p": 2
+  },
+  {
+    "id": 91,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "O procedimento adotado foi regular, pois o Aspirante-a-Oficial PM deve ser submetido a Conselho de Disciplina e o Conselho Superior de Polícia possui competência para julgar, em última instância, os processos dele oriundos, sendo facultativo o afastamento do militar de suas atividades durante a tramitação do Conselho.",
+    "resposta": "E",
+    "comentario": "o Aspirante vai mesmo a Conselho de Disciplina e o Conselho Superior de Polícia julga em última instância, mas o afastamento é obrigatório (\"serão afastados\"), não facultativo (art. 61, caput, §§1º e 2º).",
+    "pre": [
+      {
+        "cls": "txt",
+        "t": "Durante procedimento administrativo no âmbito da Polícia Militar do Maranhão, constatou-se que determinado Aspirante-a-Oficial PM, integrante da ativa, era presumivelmente incapaz de permanecer nas fileiras da Corporação. Em razão disso, foi submetido a Conselho de Disciplina, permanecendo, contudo, no exercício normal de suas atividades até a conclusão do procedimento. Ao final, estabeleceu-se que eventual recurso seria julgado, em última instância, pelo Conselho Superior de Polícia."
+      },
+      {
+        "cls": "cmd",
+        "t": "Considerando as disposições do Estatuto dos Policiais Militares do Maranhão, julgue o item a seguir."
+      }
+    ],
+    "p": 2,
+    "comando": "Considerando as disposições do Estatuto dos Policiais Militares do Maranhão, julgue o item a seguir."
+  },
+  {
+    "id": 92,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "O encaminhamento do processo ao Conselho Superior de Polícia está correto, uma vez que compete a esse órgão julgar, em última instância, os processos oriundos dos Conselhos de Justificação instaurados contra oficiais da PMMA.",
+    "resposta": "E",
+    "comentario": "processos oriundos de Conselho de Justificação (oficiais) são julgados pelo Tribunal de Justiça do Estado; o CSP julga os de Conselho de Disciplina (art. 60, §2º, e art. 61, §2º; v. CF, art. 125, §4º).",
+    "pre": [
+      {
+        "cls": "txt",
+        "t": "Após apuração interna, um Major da Polícia Militar do Maranhão foi considerado presumivelmente incapaz de permanecer como policial militar da ativa, razão pela qual foi submetido a Conselho de Justificação. Concluídos os trabalhos, o processo foi encaminhado ao Conselho Superior de Polícia, sob o fundamento de que esse órgão seria responsável pelo julgamento, em última instância, dos procedimentos disciplinares instaurados no âmbito da Corporação."
+      },
+      {
+        "cls": "cmd",
+        "t": "Com base no Estatuto dos Policiais Militares do Maranhão, julgue o item."
+      }
+    ],
+    "p": 2,
+    "comando": "Com base no Estatuto dos Policiais Militares do Maranhão, julgue o item."
+  },
+  {
+    "id": 93,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "Enquanto o Estado do Maranhão não dispuser de Tribunal Militar, a Auditoria da Justiça Militar Estadual é o órgão competente para processar e julgar os militares estaduais, nos crimes definidos em leis como militares, tendo o Tribunal de Justiça do Estado como órgão para julgar em segunda instância.",
+    "resposta": "C",
+    "comentario": "reprodução literal (art. 58, caput).",
+    "p": 2
+  },
+  {
+    "id": 94,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "O Comandante-geral poderá indicar policial militar para realizar curso no exterior, desde que seja de interesse institucional, não podendo ausentar-se do Estado, sem prévia autorização do Governador, concedida através de ato publicado no Diário Oficial do Estado.",
+    "resposta": "C",
+    "comentario": "reprodução do §2º do art. 78-A (redação da MP 389/2022, convertida na Lei 11.324/2022) (art. 78-A, §2º).",
+    "p": 2
+  },
+  {
+    "id": 95,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "Instalação o período de afastamento total do serviço concedido ao militar cuja movimentação implique, obrigatoriamente, mudança de sede, e destina-se aos preparativos decorrentes da mudança.",
+    "resposta": "E",
+    "comentario": "o conceito descrito é o de TRÂNSITO; instalação é o afastamento após o trânsito, na apresentação à nova OPM (art. 84, §§2º e 3º).",
+    "separator": true,
+    "pre": [
+      {
+        "cls": "cmd",
+        "t": "De acordo com o Estatuto da Polícia Militar do Maranhão, julgue os itens seguintes."
+      }
+    ],
+    "p": 2,
+    "comando": "De acordo com o Estatuto da Polícia Militar do Maranhão, julgue os itens seguintes."
+  },
+  {
+    "id": 96,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "Em relação ao salário-família, o militar que não possuir como dependentes filhos, inclusive os enteados e adotivos até 21 (vinte e um) anos de idade ou, se estudante, até 24 (vinte e quatro) anos ou, se inválido, de qualquer idade, poderá perceber o salário-família ao menor que, mediante autorização judicial, viver sob sua guarda e sustento, até o limite máximo de três cotas.",
+    "resposta": "E",
+    "comentario": "o limite é de DUAS cotas, não três (art. 87, §1º).",
+    "p": 2
+  },
+  {
+    "id": 97,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "A licença-prêmio, a licença-paternidade e a licença para tratar de interesse particular poderão ser interrompidas em caso de mobilização, estado de defesa, grave perturbação da ordem pública, estado de sítio e intervenção federal.",
+    "resposta": "C",
+    "comentario": "hipóteses de interrupção dessas três licenças (art. 98, \"a\").",
+    "p": 2
+  },
+  {
+    "id": 98,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "Licença para tratamento de saúde em pessoa da família não poderá exceder de 06 (seis) meses e será concedida com os vencimentos e vantagens percebidos à data de sua concessão até 03 (três) meses, sofrendo, se superior a tal período, o desconto de um terço.",
+    "resposta": "C",
+    "comentario": "reprodução literal (art. 94, parágrafo único, red. Lei 8.362/2005).",
+    "p": 2
+  },
+  {
+    "id": 99,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "O policial-militar deve ser agregado quando como desertor, ter-se apresentado voluntariamente ou ter sido capturado e reincluído, a fim de se ver processar.",
+    "resposta": "C",
+    "comentario": "hipótese de agregação (art. 106, §1º, I, \"h\").",
+    "p": 2
+  },
+  {
+    "id": 100,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "considerado extraviado o militar da ativa que, no desempenho de qualquer serviço, em viagens, em operações militares ou em caso de calamidade pública, tiver paradeiro ignorado por mais de 08 (oito) dias consecutivos.",
+    "resposta": "E",
+    "comentario": "paradeiro ignorado por mais de 8 dias = DESAPARECIDO; extraviado só após mais de 30 dias desaparecido (arts. 113 e 114).",
+    "p": 2
+  },
+  {
+    "id": 101,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "A transferência para a reserva remunerada ou a reforma isenta o militar da indenização dos prejuízos causados à Fazenda Estadual.",
+    "resposta": "E",
+    "comentario": "a reserva remunerada ou a reforma NÃO isenta da indenização dos prejuízos à Fazenda Estadual (art. 116).",
+    "separator": true,
+    "pre": [
+      {
+        "cls": "cmd",
+        "t": "De acordo com o Estatuto da Polícia Militar do Maranhão, julgue os itens seguintes."
+      }
+    ],
+    "p": 2,
+    "comando": "De acordo com o Estatuto da Polícia Militar do Maranhão, julgue os itens seguintes."
+  },
+  {
+    "id": 102,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "No caso do militar haver realizado qualquer curso ou estágio com duração superior a 1 (um) ano, a sua transferência para a reserva remunerada somente ocorrerá após decorridos 36 (trinta e seis) meses, da conclusão do curso ou estágio, ou mediante a indenização de todas as despesas decorrentes com a realização do referido curso ou estágio.",
+    "resposta": "C",
+    "comentario": "curso/estágio > 1 ano: reserva só após 36 meses da conclusão ou com indenização das despesas (art. 119, §2º).",
+    "p": 2
+  },
+  {
+    "id": 103,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "O servidor militar da reserva remunerada poderá ser convocado para o serviço ativo em caráter transitório e mediante aceitação voluntária, por ato do Governador do Estado terá a duração necessária ao cumprimento da missão que a ele deu origem, não podendo exceder a 06 (seis) meses, e será precedida de inspeção de saúde.",
+    "resposta": "C",
+    "comentario": "convocação transitória, voluntária, por ato do Governador, até 6 meses e precedida de inspeção de saúde (art. 122, caput e §2º).",
+    "p": 2
+  },
+  {
+    "id": 104,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "É vedada a convocação de militar da reserva para exercer qualquer cargo ou função de comando ou chefia, previstos nos Quadros de Organização da Polícia Militar.",
+    "resposta": "C",
+    "comentario": "reprodução literal (art. 122, §3º).",
+    "p": 2
+  },
+  {
+    "id": 105,
+    "section": "Estatuto dos PMs do MA — Lei nº 6.513/1995",
+    "texto": "O militar reformado por incapacidade definitiva que for julgado apto em inspeção de saúde por Junta Superior em grau de recurso ou revisão, poderá retornar ao serviço ativo ou ser transferido para a reserva remunerada",
+    "resposta": "C",
+    "comentario": "reprodução do art. 131, caput (omite \"conforme dispuser a legislação peculiar\", incompleto mas correto).",
+    "p": 2
+  },
+  {
+    "id": 106,
+    "section": "LOB da PMMA — Lei nº 12.896/2026",
+    "texto": "Não compete a PMMA atender a requisições do Poder Judiciário, pois trata-se de uma missão peculiar da Polícia Civil.",
+    "resposta": "E",
+    "comentario": "compete à PMMA \"atender a requisições do Poder Judiciário\" (art. 4º, XXVIII).",
+    "separator": true,
+    "pre": [
+      {
+        "cls": "cmd",
+        "t": "Sobre a Lei de Organização Básica da Polícia Militar do Maranhão, julgue os itens seguintes."
+      }
+    ],
+    "p": 2,
+    "comando": "Sobre a Lei de Organização Básica da Polícia Militar do Maranhão, julgue os itens seguintes."
+  },
+  {
+    "id": 107,
+    "section": "LOB da PMMA — Lei nº 12.896/2026",
+    "texto": "Os Comandos de Policiamento de Área e as Unidades de Polícia Militar (UPM) são órgãos de execução.",
+    "resposta": "C",
+    "comentario": "órgãos de execução: Comandos de Policiamento de Área e UPM (art. 5º, IV, \"a\" e \"b\").",
+    "p": 2
+  },
+  {
+    "id": 108,
+    "section": "LOB da PMMA — Lei nº 12.896/2026",
+    "texto": "Ao Coronel, quando no exercício do cargo de Subcomandante-Geral, é assegurada uma complementação indenizatória temporária, no valor correspondente à diferença entre a retribuição paga pelo exercício de comando ou de chefia de seu cargo de origem e 40% (quarenta por cento) da complementação da retribuição pecuniária atribuída ao Comandante-Geral",
+    "resposta": "E",
+    "comentario": "para o Subcomandante-Geral o percentual é 50%; 40% é para o Chefe do EMG e o Corregedor-Geral (art. 13, §2º; cf. art. 18, §2º).",
+    "p": 2
+  },
+  {
+    "id": 109,
+    "section": "LOB da PMMA — Lei nº 12.896/2026",
+    "texto": "Elaborar a doutrina de preparo e emprego da tropa e na definição das políticas de comando compete ao Estado-Maior Geral.",
+    "resposta": "C",
+    "comentario": "competência do Estado-Maior Geral (art. 16, V).",
+    "p": 2
+  },
+  {
+    "id": 110,
+    "section": "LOB da PMMA — Lei nº 12.896/2026",
+    "texto": "À 7ª Seção do EMG (PM/7), órgão do Estado-Maior Geral, cabe definir, elaborar e planejar a política institucional de Doutrina Operacional e Administrativa, Ensino e Cultura.",
+    "resposta": "C",
+    "comentario": "reprodução da competência da PM/7 (art. 27).",
+    "p": 2
+  },
+  {
+    "id": 111,
+    "section": "LOB da PMMA — Lei nº 12.896/2026",
+    "texto": "Os Batalhões de Polícia Militar e os Regimentos de Polícia Montada terão o seu efetivo classificado por tipo, mediante ato do Comandante-Geral. O batalhão tipo I possui efetivo de 336 (trezentos e trinta e seis) a 400 (quatrocentos) policiais militares.",
+    "resposta": "C",
+    "comentario": "tipo I: 336 a 400 policiais militares, classificação por ato do Comandante-Geral (art. 80, I).",
+    "p": 2
+  },
+  {
+    "id": 112,
+    "section": "Lei Orgânica Nacional das PM/CBM — Lei nº 14.751/2023",
+    "texto": "Às polícias militares dos Estados, do Distrito Federal e dos Territórios, integrantes do Sistema Único de Segurança Pública (Susp), cabe a proteção dos direitos fundamentais no âmbito da preservação da ordem pública, da polícia ostensiva e da polícia judiciária militar dos Estados, do Distrito Federal e dos Territórios, com a finalidade de preservação da ordem pública e da incolumidade das pessoas e do patrimônio, além de outras atribuições previstas em lei.",
+    "resposta": "C",
+    "comentario": "reprodução literal (art. 2º, §1º).",
+    "separator": true,
+    "pre": [
+      {
+        "cls": "cmd",
+        "t": "Conforme preconiza a Lei Orgânica Nacional das Polícias Militares, julgue os itens seguintes."
+      }
+    ],
+    "p": 2,
+    "comando": "Conforme preconiza a Lei Orgânica Nacional das Polícias Militares, julgue os itens seguintes."
+  },
+  {
+    "id": 113,
+    "section": "Lei Orgânica Nacional das PM/CBM — Lei nº 14.751/2023",
+    "texto": "É diretriz a ser observada pelas polícias militares e pelos corpos de bombeiros militares dos Estados, do Distrito Federal e dos Territórios o livre convencimento técnico-jurídico do oficial no exercício da polícia judiciária militar",
+    "resposta": "C",
+    "comentario": "diretriz expressa (art. 4º, XVIII).",
+    "p": 2
+  },
+  {
+    "id": 114,
+    "section": "Lei Orgânica Nacional das PM/CBM — Lei nº 14.751/2023",
+    "texto": "As instituições militares estaduais poderão, nos termos em que a lei do ente federado estabelecer, criar e manter as assessorias militares.",
+    "resposta": "C",
+    "comentario": "reprodução literal (art. 10, §7º).",
+    "p": 2
+  },
+  {
+    "id": 115,
+    "section": "Lei Orgânica Nacional das PM/CBM — Lei nº 14.751/2023",
+    "texto": "São praças especiais aspirante a oficial, cadete e o aluno-oficial",
+    "resposta": "C",
+    "comentario": "praças especiais: aspirante a oficial, cadete e aluno-oficial (art. 12, II).",
+    "p": 2
+  },
+  {
+    "id": 116,
+    "section": "Lei Orgânica Nacional das PM/CBM — Lei nº 14.751/2023",
+    "texto": "Quadro de Oficiais de Estado-Maior (QOEM), destinado ao exercício, entre outras, das funções de comando, chefia, direção e administração superior dos diversos órgãos da instituição e integrado por oficiais aprovados em concurso público, exigido nível superior em qualquer área, observado o disposto no inciso IX do caput do art. 13 na referida Lei.",
+    "resposta": "E",
+    "comentario": "para o QOEM se exige bacharelado em Direito, não \"nível superior em qualquer área\" (art. 15, I).",
+    "p": 2
+  },
+  {
+    "id": 117,
+    "section": "Lei Orgânica Nacional das PM/CBM — Lei nº 14.751/2023",
+    "texto": "A critério das corporações, poderão ser instituídos Quadro de Oficial Temporário (QOT) e Quadro de Praça Temporário (QPT), por tempo determinado, nos termos da legislação do ente federado.",
+    "resposta": "C",
+    "comentario": "reprodução literal (art. 15, §4º).",
+    "p": 2
+  },
+  {
+    "id": 118,
+    "section": "Lei Orgânica Nacional das PM/CBM — Lei nº 14.751/2023",
+    "texto": "O curso de aperfeiçoamento de oficiais (CAO), destinado aos capitães e à habilitação à promoção ao posto de major",
+    "resposta": "C",
+    "comentario": "CAO: capitães, habilitação à promoção a major (art. 16, §2º, I, \"b\").",
+    "p": 2
+  },
+  {
+    "id": 119,
+    "section": "Lei Orgânica Nacional das PM/CBM — Lei nº 14.751/2023",
+    "texto": "O curso de comando e estado-maior (CCEM) é destinado exclusivamente aos majores e tenentes-coronéis do QOEM para a promoção ao posto de coronel.",
+    "resposta": "E",
+    "comentario": "o CCEM é destinado a majores e tenentes-coronéis do QOEM E do QOS; \"exclusivamente ... do QOEM\" está errado (art. 16, §2º, I, \"c\").",
+    "p": 2
+  },
+  {
+    "id": 120,
+    "section": "Lei Orgânica Nacional das PM/CBM — Lei nº 14.751/2023",
+    "texto": "O curso de aperfeiçoamento de praças (CAP), destinado aos segundos-sargentos e primeiros-sargentos para habilitação à promoção à graduação de subtenente",
+    "resposta": "E",
+    "comentario": "o CAP é destinado aos segundos-sargentos e habilita à promoção a PRIMEIRO-SARGENTO, não a subtenente (art. 16, §2º, II, \"c\").",
+    "p": 2
+  }
+];
+
+
+(function(){
+  'use strict';
+  const C = window.SIM_CONFIG;
+  const Q = window.QUESTIONS;
+  const N = Q.length;
+  const KEY = C.STORAGE_KEY || 'modelo_simulado_pmma';
+  const SC = Object.assign({
+    mode: 'cebraspe', // 'percent' | 'cebraspe'
+    allowBlank: true,
+    p1: null, // {from,to,min} or null
+    p2: null,
+    totalMin: null
+  }, C.SCORING || {});
+
+  // Build SECTIONS from config or derive from questions
+  let SECTIONS = (C.SECTIONS && C.SECTIONS.length) ? C.SECTIONS.slice() : [];
+  if (!SECTIONS.length) {
+    const map = new Map();
+    Q.forEach((q,i)=>{
+      const name = q.section || 'Geral';
+      if (!map.has(name)) map.set(name, {name, a:i+1, b:i+1});
+      else map.get(name).b = i+1;
+    });
+    SECTIONS = [...map.values()];
+  }
+
+  const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+
+  let st = {marks:{}, last:null};
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (raw && typeof raw === 'object') {
+      st.marks = raw.marks || {};
+      st.last = raw.last || null;
+    }
+  } catch(e){}
+
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch(e){} };
+  const $ = id => document.getElementById(id);
+  const secIdx = n => SECTIONS.findIndex(s => n >= s.a && n <= s.b);
+  const secOf = n => SECTIONS[Math.max(0, secIdx(n))] || {name:'', a:1, b:N};
+
+  // Inherit base-text / comando context within a section group
+  const CTX = [];
+  Q.forEach((q,i)=>{
+    const s = secOf(q.id || (i+1));
+    const n = q.id || (i+1);
+    if (q.pre && q.pre.length) CTX[i] = {src:n, pre:q.pre};
+    else if (q.separator || n === s.a) CTX[i] = null;
+    else CTX[i] = CTX[i-1] || null;
+  });
+
+  const REVERSE = !!C.REVERSE_ORDER;
+  let view = {t:'intro', s: REVERSE ? Math.max(0, SECTIONS.length-1) : 0}; // intro | item | placar
+
+  function counts(a,b){
+    let ac=0, er=0, bl=0;
+    for (let n=a; n<=b; n++){
+      const v = st.marks[n];
+      const q = Q[n-1];
+      if (!q) continue;
+      if (v==='C' || v==='E'){
+        (v === q.resposta ? ac++ : er++);
+      } else if (v==='B') bl++;
+      else bl++; // unanswered counts as blank for scoring display of remaining range
+    }
+    // For live scoreboard we treat unanswered separately; for placar blanks include unanswered
+    return {ac, er, bl, nota: ac - er};
+  }
+  function answeredCount(){
+    return Object.keys(st.marks).filter(k => st.marks[k]==='C'||st.marks[k]==='E'||st.marks[k]==='B').length;
+  }
+  function liveScore(){
+    let ac=0, er=0;
+    Object.keys(st.marks).forEach(k=>{
+      const v = st.marks[k];
+      if (v!=='C' && v!=='E') return;
+      const q = Q[+k-1];
+      if (!q) return;
+      if (v === q.resposta) ac++; else er++;
+    });
+    return {ac, er, rest: N - answeredCount()};
+  }
+
+  function setLast(n){
+    const s = secOf(n);
+    st.last = {n, sec: s.name};
+    save();
+  }
+
+  function go(v){
+    view = v;
+    render();
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function headerBar(){
+    const live = liveScore();
+    $('numCertas').textContent = live.ac;
+    $('numErradas').textContent = live.er;
+    $('numPendentes').textContent = live.rest;
+    if (view.t === 'item'){
+      const n = view.n;
+      const s = secOf(n);
+      const donePos = REVERSE ? (N - n + 1) : n;
+      $('progressLabel').textContent = (REVERSE ? (n + ' → 1') : (n + ' / ' + N));
+      $('progressFill').style.width = (donePos / N * 100) + '%';
+      $('posChip').textContent = (s.short || s.name) + ' · item ' + n + (REVERSE ? ' (decrescendo)' : '');
+    } else if (view.t === 'intro'){
+      const s = SECTIONS[view.s];
+      const tip = REVERSE ? s.b : (s.a-1);
+      const donePos = REVERSE ? (N - s.b) : (s.a-1);
+      $('progressLabel').textContent = REVERSE ? (s.b + ' → 1') : ((s.a-1) + ' / ' + N);
+      $('progressFill').style.width = (Math.max(0,donePos) / N * 100) + '%';
+      $('posChip').textContent = 'Seção: ' + (s.short || s.name);
+    } else {
+      $('progressLabel').textContent = REVERSE ? '1 → placar' : (N + ' / ' + N);
+      $('progressFill').style.width = '100%';
+      $('posChip').textContent = 'Placar final';
+    }
+    $('marcoChip').textContent = st.last ? ('📌 Marco: item ' + st.last.n) : '';
+  }
+
+  function renderCtx(n){
+    const ctx = CTX[n-1];
+    if (!ctx) return '';
+    const body = ctx.pre.map(p => {
+      const cls = p.cls || 'txt';
+      return '<p class="'+esc(cls)+'">'+esc(p.t)+'</p>';
+    }).join('');
+    const len = ctx.pre.reduce((a,p)=>a+(p.t||'').length, 0);
+    if (len > 280){
+      const open = ctx.src === n ? ' open' : '';
+      const sum = ctx.src === n
+        ? '📄 Texto-base / comando (toque para recolher)'
+        : '📄 Texto-base / comando (do item '+ctx.src+') — toque para ver';
+      return '<details class="ctx"'+open+'><summary>'+sum+'</summary><div class="ctx-scroll">'+body+'</div></details>';
+    }
+    return '<div class="ctx">'+body+'</div>';
+  }
+
+  function showFb(n){
+    const q = Q[n-1], v = st.marks[n];
+    if (!v){ $('fb').className='feedback'; $('fb').innerHTML=''; return; }
+    let cls, tag;
+    if (v === 'B'){ cls='blank'; tag='— Em branco (0 ponto)'; }
+    else if (v === q.resposta){ cls='ok'; tag='✓ Você acertou' + (SC.mode==='cebraspe'?' (+1)':''); }
+    else { cls='no'; tag='✗ Você errou' + (SC.mode==='cebraspe'?' (−1)':''); }
+    const gab = q.resposta === 'C' ? 'CERTO' : 'ERRADO';
+    const art = q.art ? ' <span class="art">'+esc(q.art)+'</span>' : '';
+    const warn = q.discutivel ? ' ⚠️ ' : '';
+    $('fb').className = 'feedback show ' + cls;
+    $('fb').innerHTML =
+      '<span class="tag">'+tag+'</span>' +
+      '<span class="gab">'+gab+'</span>' + art +
+      '<div style="margin-top:8px">'+warn+esc(q.comentario||'')+'</div>';
+  }
+
+  function mark(n, v){
+    if (st.marks[n]) return;
+    st.marks[n] = v;
+    setLast(n);
+    save();
+    render();
+    // scroll feedback into view
+    setTimeout(()=>{ const el=$('fb'); if(el) el.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 50);
+  }
+
+  function renderIntro(){
+    const s = SECTIONS[view.s];
+    const c = counts(s.a, s.b);
+    const total = s.b - s.a + 1;
+    const ans = total - c.bl;
+    const demo = C.DEMO ? '<div class="demo-banner">⚠️ DEMO — estes itens de exemplo serão substituídos ao colar o PDF convertido</div>' : '';
+    const firstSec = REVERSE ? (SECTIONS.length-1) : 0;
+    const howto = view.s === firstSec ? (
+      '<div class="card howto"><b>Como funciona:</b> uma questão por vez'+(REVERSE?' (ordem invertida: do item '+N+' ao 1)':'')+'. Toque em <b>Certo</b>, <b>Errado</b>' +
+      (SC.allowBlank ? ' ou <b>Deixar em branco</b>' : '') +
+      '; o gabarito comentado aparece logo abaixo. Depois toque em <b>Próxima →</b>. ' +
+      'O progresso fica salvo neste aparelho' +
+      (SC.mode==='cebraspe' ? '. No fim: placar Cebraspe (acerto +1, erro −1, branco 0).' : '.') +
+      '</div>'
+    ) : '';
+    const startN = REVERSE ? s.b : s.a;
+    const orderHint = REVERSE ? (' · ordem '+s.b+'→'+s.a) : '';
+    let backHtml = '';
+    if (REVERSE){
+      if (view.s < SECTIONS.length-1) backHtml = '<button class="action-btn ghost" id="backSec">← Voltar ao item '+(s.b+1)+'</button>';
+    } else if (view.s>0){
+      backHtml = '<button class="action-btn ghost" id="backSec">← Voltar ao item '+(s.a-1)+'</button>';
+    }
+    $('quizBody').innerHTML =
+      demo +
+      '<div class="card intro-card">' +
+      '<div class="sec-label">Seção '+(REVERSE ? (SECTIONS.length-view.s) : (view.s+1))+' de '+SECTIONS.length+'</div>' +
+      '<h2>'+esc(s.name)+'</h2>' +
+      '<p>Itens '+s.a+'–'+s.b+' · '+total+' itens'+orderHint+(ans?(' · '+ans+' já respondidos'):'')+'</p>' +
+      '<button class="start-btn" id="startSec">Começar ▶ item '+startN+'</button>' +
+      '</div>' + howto + backHtml;
+    $('navb').classList.add('hidden');
+    $('startSec').onclick = () => go({t:'item', n:startN});
+    const back = $('backSec');
+    if (back) back.onclick = () => go({t:'item', n: REVERSE ? (s.b+1) : (s.a-1)});
+  }
+
+  function renderItem(){
+    const n = view.n;
+    const q = Q[n-1];
+    setLast(n);
+    const v = st.marks[n];
+    const locked = !!v;
+    let h = renderCtx(n);
+    h += '<div class="card">';
+    h += '<div class="qnum">Item '+n+(q.section?(' · '+esc(q.section)):'')+'</div>';
+    if (q.comando) h += '<div class="comando">'+esc(q.comando)+'</div>';
+    if (q.discutivel) h += '<span class="warn">⚠️ item discutível</span>';
+    h += '<div class="qtext">'+esc(q.texto)+'</div>';
+    h += '<div class="options">';
+    h += '<button class="opt-btn'+(v==='C'?(q.resposta==='C'?' correct':' incorrect'):(locked&&q.resposta==='C'?' correct':''))+'" data-v="C"'+(locked?' disabled':'')+'>CERTO</button>';
+    h += '<button class="opt-btn'+(v==='E'?(q.resposta==='E'?' correct':' incorrect'):(locked&&q.resposta==='E'?' correct':''))+'" data-v="E"'+(locked?' disabled':'')+'>ERRADO</button>';
+    h += '</div>';
+    if (SC.allowBlank){
+      h += '<button class="blank-btn'+(v==='B'?' sel':'')+'" data-v="B"'+(locked?' disabled':'')+'>Deixar em branco</button>';
+    }
+    h += '<div class="feedback" id="fb"></div>';
+    h += '<p class="kbd-hint">Atalhos: C · E'+(SC.allowBlank?' · B':'')+' · ← → · F (tela cheia)</p>';
+    h += '</div>';
+    $('quizBody').innerHTML = h;
+    $('navb').classList.remove('hidden');
+    $('btnPrev').disabled = REVERSE ? (n === N) : (n === 1);
+    $('btnNext').textContent = (REVERSE ? (n === 1) : (n === N)) ? 'Ver placar 🏁' : 'Próxima →';
+    if (v) showFb(n);
+    $('quizBody').querySelectorAll('[data-v]').forEach(b=>{
+      b.onclick = () => mark(n, b.dataset.v);
+    });
+  }
+
+  function renderPlacar(){
+    $('navb').classList.add('hidden');
+    const T = counts(1, N);
+    // Recalc blanks as only explicit B + unanswered for display of "em branco"
+    let ac=T.ac, er=T.er, bl=0;
+    for (let n=1;n<=N;n++){
+      const v=st.marks[n];
+      if (v!=='C' && v!=='E') bl++;
+    }
+    const nota = ac - er;
+    const pct = N ? Math.round((ac/N)*100) : 0;
+
+    let table = '';
+    let flags = '';
+    if (SC.p1 || SC.p2){
+      const rows = [];
+      const mk = (label, range, min) => {
+        if (!range) return;
+        const c = counts(range.from, range.to);
+        let blank=0; for(let n=range.from;n<=range.to;n++){ const v=st.marks[n]; if(v!=='C'&&v!=='E') blank++; }
+        rows.push('<tr><td><b>'+esc(label)+'</b></td><td>'+c.ac+'</td><td>'+c.er+'</td><td>'+blank+'</td><td><b>'+(c.ac-c.er)+'</b></td><td>'+(min!=null?min:'—')+'</td></tr>');
+        if (min != null){
+          const ok = (c.ac-c.er) >= min;
+          flags += '<div class="flag '+(ok?'okf':'badf')+'">'+(ok?'✅':'❌')+' '+esc(label)+': nota '+(c.ac-c.er)+' '+(ok?'≥':'<')+' '+min+' — '+(ok?'não eliminado':'ELIMINADO')+'</div>';
+        }
+      };
+      mk('P1 ('+SC.p1.from+'–'+SC.p1.to+')', SC.p1, SC.p1.min);
+      if (SC.p2) mk('P2 ('+SC.p2.from+'–'+SC.p2.to+')', SC.p2, SC.p2.min);
+      mk('Total', {from:1,to:N}, SC.totalMin);
+      table = '<table class="pt"><tr><th></th><th>Acertos</th><th>Erros</th><th>Branco</th><th>Nota</th><th>Mín.</th></tr>'+rows.join('')+'</table>';
+      if (SC.totalMin != null){
+        const ok = nota >= SC.totalMin;
+        // already added in mk Total
+      }
+    }
+
+    let review = '<div id="reviewList"><div style="font-family:var(--serif);font-size:15px;margin-bottom:10px;color:var(--ink)">Revisão dos itens'+(REVERSE?' (ordem do simulado)':'')+'</div>';
+    const revIdx = REVERSE ? [...Q.keys()].reverse() : [...Q.keys()];
+    revIdx.forEach(i=>{
+      const q=Q[i], n=i+1, v=st.marks[n];
+      let cls='bl', mark='—';
+      if (v==='C'||v==='E'){ cls = (v===q.resposta)?'ok':'no'; mark = (v===q.resposta)?'✓':'✗'; }
+      else if (v==='B'){ cls='bl'; mark='○'; }
+      const snippet = (q.texto||'').slice(0,110) + ((q.texto||'').length>110?'…':'');
+      review += '<div class="review-item '+cls+'"><div class="dot"></div><div class="rtext"><span class="mark">'+mark+'</span><strong>Item '+n+'</strong>'+(q.art?(' ('+esc(q.art)+')'):'')+': '+esc(snippet)+'</div></div>';
+    });
+    review += '</div>';
+
+    const scoreLine = SC.mode==='cebraspe'
+      ? (ac+' acertos − '+er+' erros = <b>nota '+nota+'</b> · '+bl+' em branco')
+      : (ac+' de '+N+' corretos');
+
+    $('quizBody').innerHTML =
+      '<div class="card" id="finalScreenInner">' +
+      '<h2 style="font-family:var(--serif);margin:0 0 4px">Simulado concluído</h2>' +
+      '<div class="pct">'+pct+'%</div>' +
+      '<div class="msg">'+scoreLine+'</div>' +
+      '<div class="kpis">' +
+      '<div class="kpi ok"><b>'+ac+'</b>Acertos</div>' +
+      '<div class="kpi bad"><b>'+er+'</b>Erros</div>' +
+      '<div class="kpi bl"><b>'+bl+'</b>Em branco</div>' +
+      '<div class="kpi nota"><b>'+(SC.mode==='cebraspe'?nota:pct+'%')+'</b>'+(SC.mode==='cebraspe'?'Nota Cebraspe':'Aproveitamento')+'</div>' +
+      '</div>' +
+      table + flags +
+      (SC.mode==='cebraspe'?'<p style="font-size:13px;color:var(--ink-dim);text-align:left">Nota = acertos − erros. Em branco vale 0.</p>':'') +
+      '<button class="action-btn ghost" id="revBtn">← Rever a partir do item 1</button>' +
+      '<button class="action-btn danger" id="redoBtn">🔄 Refazer do zero</button>' +
+      review +
+      '</div>';
+    $('finalScreenInner'); // ensure
+    $('revBtn').onclick = () => go({t:'item', n: REVERSE ? N : 1});
+    $('redoBtn').onclick = () => { if (resetAll()) go({t:'intro', s: REVERSE ? Math.max(0, SECTIONS.length-1) : 0}); };
+  }
+
+  function render(){
+    headerBar();
+    if (view.t === 'intro') renderIntro();
+    else if (view.t === 'placar') renderPlacar();
+    else renderItem();
+  }
+
+  function next(){
+    if (view.t !== 'item') return;
+    const n = view.n;
+    if (REVERSE){
+      if (n === 1) return go({t:'placar'});
+      const s1 = secIdx(n), s2 = secIdx(n-1);
+      if (s2 !== s1 && s2 >= 0) go({t:'intro', s:s2});
+      else go({t:'item', n:n-1});
+    } else {
+      if (n === N) return go({t:'placar'});
+      const s1 = secIdx(n), s2 = secIdx(n+1);
+      if (s2 !== s1 && s2 >= 0) go({t:'intro', s:s2});
+      else go({t:'item', n:n+1});
+    }
+  }
+  function prev(){
+    if (view.t !== 'item') return;
+    if (REVERSE){
+      if (view.n < N) go({t:'item', n:view.n+1});
+    } else {
+      if (view.n > 1) go({t:'item', n:view.n-1});
+    }
+  }
+
+  function resetAll(){
+    if (!confirm('Apagar todas as respostas e o marco salvo deste simulado?')) return false;
+    st = {marks:{}, last:null};
+    save();
+    return true;
+  }
+
+  // Menu
+  
+  const fsBtn = $('fsBtn');
+  function apiFs(){
+    return !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+  }
+  function immersiveOn(){ return document.body.classList.contains('is-immersive'); }
+  function isFs(){ return apiFs() || immersiveOn(); }
+  function unlockScroll(){
+    const root = document.documentElement;
+    root.style.overflowY = 'auto';
+    root.style.height = 'auto';
+    root.style.maxHeight = 'none';
+    document.body.style.overflowY = 'auto';
+    document.body.style.overflowX = 'hidden';
+    document.body.style.position = 'static';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.bottom = '';
+    document.body.style.height = 'auto';
+    document.body.style.maxHeight = 'none';
+    document.body.style.touchAction = 'pan-y';
+  }
+  function enterImmersive(){
+    document.body.classList.add('is-immersive');
+    unlockScroll();
+  }
+  function exitImmersive(){
+    document.body.classList.remove('is-immersive');
+    unlockScroll();
+  }
+  function syncFsBtn(){
+    if(!fsBtn) return;
+    const on = isFs();
+    fsBtn.title = on ? 'Sair da tela cheia' : 'Tela cheia';
+    fsBtn.setAttribute('aria-label', fsBtn.title);
+    fsBtn.textContent = on ? '✕' : '⛶';
+    fsBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+  async function enterApiFs(){
+    const el = document.documentElement;
+    if (el.requestFullscreen) return el.requestFullscreen({ navigationUI: 'hide' }).catch(()=>el.requestFullscreen());
+    if (el.webkitRequestFullscreen) { el.webkitRequestFullscreen(); return; }
+    if (el.msRequestFullscreen) { el.msRequestFullscreen(); return; }
+    throw new Error('no-fs-api');
+  }
+  async function exitApiFs(){
+    if (document.exitFullscreen) return document.exitFullscreen();
+    if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); return; }
+    if (document.msExitFullscreen) { document.msExitFullscreen(); return; }
+  }
+  async function toggleFs(ev){
+    if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+    const turningOff = isFs();
+    if (turningOff){
+      try{ await exitApiFs(); }catch(_){}
+      exitImmersive();
+      syncFsBtn();
+      return;
+    }
+    // Always expand the layout immediately (works even when Fullscreen API is blocked).
+    enterImmersive();
+    syncFsBtn();
+    try{
+      await enterApiFs();
+    }catch(_){
+      /* keep immersive fallback */
+    }
+    setTimeout(syncFsBtn, 150);
+  }
+  if (fsBtn){
+    fsBtn.addEventListener('click', toggleFs, true);
+    fsBtn.addEventListener('pointerup', function(e){ /* ensure gesture */ }, true);
+  }
+  document.addEventListener('fullscreenchange', ()=>{ unlockScroll(); syncFsBtn(); });
+  document.addEventListener('webkitfullscreenchange', syncFsBtn);
+  document.addEventListener('MSFullscreenChange', syncFsBtn);
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && immersiveOn() && !apiFs()){ exitImmersive(); syncFsBtn(); }
+  });
+  syncFsBtn();
+  unlockScroll();
+  exitImmersive(); // start normal; only expand on demand
+
+  $('menuBtn').onclick = () => {
+    $('menuP').innerHTML = SECTIONS.map((s,i)=>{
+      const c = counts(s.a, s.b);
+      const total = s.b - s.a + 1;
+      let done=0; for(let n=s.a;n<=s.b;n++){ if(st.marks[n]==='C'||st.marks[n]==='E'||st.marks[n]==='B') done++; }
+      return '<button data-s="'+i+'"><span>'+esc(s.short||s.name)+'</span><small>'+s.a+'–'+s.b+' · '+done+'/'+total+'</small></button>';
+    }).join('') + '<button data-p="1" style="border-left-color:#facc15"><span>🏁 Placar final</span><small></small></button>';
+    $('menu').style.display = 'block';
+  };
+  $('menu').onclick = e => {
+    const b = e.target.closest('button');
+    $('menu').style.display = 'none';
+    if (!b) return;
+    if (b.dataset.p) go({t:'placar'});
+    else go({t:'intro', s:+b.dataset.s});
+  };
+  $('marcoChip').onclick = () => { if (st.last) go({t:'item', n:st.last.n}); };
+
+  $('btnNext').onclick = next;
+  $('btnPrev').onclick = prev;
+
+  document.addEventListener('keydown', e => {
+    if((e.key==='f'||e.key==='F') && !e.ctrlKey && !e.metaKey && !e.altKey){
+      const tag=(e.target&&e.target.tagName)||'';
+      if(tag!=='INPUT'&&tag!=='TEXTAREA'){ e.preventDefault(); toggleFs(); }
+    }
+
+    if (e.target.closest('input,textarea,select')) return;
+    if ($('welcome').style.display === 'flex') return;
+    if (view.t === 'item'){
+      const k = e.key.toLowerCase();
+      if (k === 'c') mark(view.n, 'C');
+      else if (k === 'e') mark(view.n, 'E');
+      else if (k === 'b' && SC.allowBlank) mark(view.n, 'B');
+      else if (e.key === 'ArrowRight') next();
+      else if (e.key === 'ArrowLeft') prev();
+    } else if (view.t === 'intro' && e.key === 'Enter'){
+      const btn = $('startSec'); if (btn) btn.click();
+    }
+  });
+
+  // Apply titles
+  document.title = C.TITLE || 'Simulado PMMA';
+  $('docTitle').textContent = C.TITLE || 'Simulado Certo & Errado';
+  $('docSubtitle').textContent = C.SUBTITLE || '';
+  $('docLawref').textContent = C.LAWREF || '';
+  if (!C.LAWREF) $('docLawref').style.display = 'none';
+
+  // Boot: resume?
+  const hasProgress = st.last && (answeredCount() || (st.last.n > 1));
+  if (hasProgress){
+    const w = $('welcome'), L = st.last;
+    $('wMsg').innerHTML = 'Você parou no <b>item '+L.n+'</b> ('+esc(L.sec)+'). Continuar daqui?<br><small>'+answeredCount()+' de '+N+' itens respondidos.</small>';
+    $('wGo').textContent = 'Continuar do item '+L.n;
+    w.style.display = 'flex';
+    $('wGo').onclick = () => { w.style.display='none'; go({t:'item', n:L.n}); };
+    $('wReset').onclick = () => { if (resetAll()){ w.style.display='none'; go({t:'intro', s: REVERSE ? Math.max(0, SECTIONS.length-1) : 0}); } };
+    // render behind modal
+    render();
+  } else {
+    render();
+  }
+})();
+
+</script>
+</body>
+</html>
